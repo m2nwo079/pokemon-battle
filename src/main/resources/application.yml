@@ -5,5 +5,12 @@ server:
       max: 20
 
 spring:
-  main:
-    lazy-initialization: true
+  datasource:
+    url: ${DATABASE_URL}
+    hikari:
+      maximum-pool-size: 3
+      connection-timeout: 30000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
