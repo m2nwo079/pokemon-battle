@@ -9,7 +9,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("http://localhost:5173")
+                .allowedOriginPatterns("http://localhost:5173", "https://pokemon-battle-web.onrender.com")
                 .allowedMethods("GET", "POST");
     }
 }
