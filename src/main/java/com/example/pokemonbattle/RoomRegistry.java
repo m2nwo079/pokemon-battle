@@ -19,7 +19,9 @@ public class RoomRegistry {
         return room;
     }
 
-    public GameRoom find(String code) { return rooms.get(code); }
+    public GameRoom find(String code) {
+        return rooms.get(code);
+    }
 
     private String randomCode() {
         String chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
