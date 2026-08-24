@@ -19,36 +19,48 @@ public class PokemonSeeder {
 
     private final PokemonRepository pokemonRepository;
     private final MoveRepository moveRepository;
+    private final PokemonMoveRepository pokemonMoveRepository;
     private final RestClient http;
 
     public PokemonSeeder(PokemonRepository pokemonRepository,
                          MoveRepository moveRepository,
+                         PokemonMoveRepository pokemonMoveRepository,
                          RestClient http) {
         this.pokemonRepository = pokemonRepository;
         this.moveRepository = moveRepository;
+        this.pokemonMoveRepository = pokemonMoveRepository;
         this.http = http;
     }
 
     public void run() {
         System.out.println("=== 시딩 시작 ===");
 
-        Set<String> moveNames = new HashSet<>();
+        Map<Integer, List<String>> learnable = new HashMap<>();
+        Set<String> allMoveNames = new HashSet<>();
 
         for (int id : TARGETS) {
             Map<String, Object> data = get(API + "/pokemon/" + id);
             if (data == null) continue;
 
-            pokemonRepository.save(toPokemon(id, data));
-            moveNames.addAll(moveNamesOf(data));
+            Map<String, Object> species = get(API + "/pokemon-species/" + id);
+            sleep(100);
+
+            pokemonRepository.save(toPokemon(id, data, species));
+
+            List<String> names = moveNamesOf(data);
+            learnable.put(id, names);
+            allMoveNames.addAll(names);
 
             System.out.println("포켓몬 " + id + " 저장");
             sleep(100);
         }
 
-        System.out.println("중복 제거 후 기술 " + moveNames.size() + "개");
+        System.out.println("중복 제거 후 기술 " + allMoveNames.size() + "개");
+
+        Map<String, Integer> savedMoveIds = new HashMap<>();
 
         int saved = 0;
-        for (String name : moveNames) {
+        for (String name : allMoveNames) {
             Map<String, Object> data = get(API + "/move/" + name);
             if (data == null) continue;
 
@@ -56,18 +68,34 @@ public class PokemonSeeder {
             if (move == null) continue;
 
             moveRepository.save(move);
+            savedMoveIds.put(name, move.getId());
+
             saved++;
             if (saved % 50 == 0) System.out.println("기술 " + saved + "개 저장");
             sleep(100);
         }
 
+        List<PokemonMoveEntity> links = new ArrayList<>();
+        for (Map.Entry<Integer, List<String>> e : learnable.entrySet()) {
+            for (String name : e.getValue()) {
+                Integer moveId = savedMoveIds.get(name);
+                if (moveId != null) {
+                    links.add(new PokemonMoveEntity(e.getKey(), moveId));
+                }
+            }
+        }
+        pokemonMoveRepository.saveAll(links);
+
         System.out.println("=== 끝. 포켓몬 " + pokemonRepository.count()
-                + "마리, 기술 " + moveRepository.count() + "개 ===");
+                + "마리, 기술 " + moveRepository.count()
+                + "개, 관계 " + pokemonMoveRepository.count() + "줄 ===");
     }
 
     @SuppressWarnings("unchecked")
-    private PokemonEntity toPokemon(int id, Map<String, Object> data) {
+    private PokemonEntity toPokemon(int id, Map<String, Object> data,
+                                    Map<String, Object> species) {
         String name = (String) data.get("name");
+        if (species != null) name = koreanName(species, name);
 
         List<Map<String, Object>> types = (List<Map<String, Object>>) data.get("types");
         String type1 = typeNameAt(types, 0);
@@ -90,7 +118,7 @@ public class PokemonSeeder {
         if (accuracy == null || pp == null) return null;
 
         int id = (int) data.get("id");
-        String name = (String) data.get("name");
+        String name = koreanName(data, (String) data.get("name"));
         String type = (String) ((Map<String, Object>) data.get("type")).get("name");
         String klass = (String) ((Map<String, Object>) data.get("damage_class")).get("name");
 
@@ -98,6 +126,8 @@ public class PokemonSeeder {
                 (int) power, (int) accuracy,
                 "physical".equals(klass), (int) pp);
     }
+
+    // ---------- 도우미 ----------
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> get(String url) {
@@ -131,6 +161,21 @@ public class PokemonSeeder {
             out.add((String) ((Map<String, Object>) m.get("move")).get("name"));
         }
         return out;
+    }
+
+    @SuppressWarnings("unchecked")
+    private String koreanName(Map<String, Object> data, String fallback) {
+        Object namesObj = data.get("names");
+        if (namesObj instanceof List<?> names) {
+            for (Object o : names) {
+                Map<String, Object> entry = (Map<String, Object>) o;
+                Map<String, Object> lang = (Map<String, Object>) entry.get("language");
+                if (lang != null && "ko".equals(lang.get("name"))) {
+                    return (String) entry.get("name");
+                }
+            }
+        }
+        return fallback;
     }
 
     private void sleep(long ms) {
