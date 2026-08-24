@@ -2,6 +2,8 @@ package com.example.pokemonbattle;
 
 import org.junit.jupiter.api.Test;
 import java.util.List;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class BattleEngineTest {
@@ -34,5 +36,31 @@ class BattleEngineTest {
         int min = BattleEngine.damage(squirtle, charmander, waterGun, 0.85);
 
         assertTrue(min < max);
+    }
+
+    @Test
+    void 스피드가_빠른_쪽이_먼저_때린다() {
+        Card cs = new Card(7, "squirtle", List.of(waterGun));
+        Card cc = new Card(4, "charmander", List.of(ember));
+
+        Battle b = new Battle(squirtle, cs, charmander, cc);
+        TurnResult r = b.playTurn(waterGun.getId(), ember.getId());
+
+        // 파이리 스피드 65+20, 꼬부기 43+20 → 파이리가 먼저
+        Map<String, Object> first = (Map<String, Object>) r.events.get(0);
+        assertEquals("p2", first.get("who"));
+    }
+
+    @Test
+    void 언젠가는_승부가_난다() {
+        Card cs = new Card(7, "squirtle", List.of(waterGun));
+        Card cc = new Card(4, "charmander", List.of(ember));
+        Battle b = new Battle(squirtle, cs, charmander, cc);
+
+        TurnResult r = null;
+        for (int i = 0; i < 30 && (r == null || r.winner == null); i++) {
+            r = b.playTurn(waterGun.getId(), ember.getId());
+        }
+        assertNotNull(r.winner);
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestClient;
 
 @SpringBootApplication
 public class PokemonBattleApplication {
@@ -13,19 +14,25 @@ public class PokemonBattleApplication {
     }
 
     @Bean
-    public CommandLineRunner seedRunner(PokemonSeeder seeder) {
+    public RestClient restClient() {
+        return RestClient.create();
+    }
+
+    @Bean
+    public CommandLineRunner seedRunner(PokemonSeeder seeder, CardFactory cardFactory) {
         return args -> {
             for (String a : args) {
                 if ("--seed".equals(a)) {
                     seeder.run();
-                    System.exit(0);   // 시딩만 하고 서버는 안 띄운다
+                    System.exit(0);
+                }
+                if ("--deal".equals(a)) {
+                    for (Card c : cardFactory.deal(6)) {
+                        System.out.println(c.toPayload(true));
+                    }
+                    System.exit(0);
                 }
             }
         };
-    }
-
-    @Bean
-    public org.springframework.web.client.RestClient restClient() {
-        return org.springframework.web.client.RestClient.create();
     }
 }
