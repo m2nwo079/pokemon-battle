@@ -6,5 +6,7 @@ import java.util.List;
 public class GameRoom {
     public final String code;
     public final List<Player> players = new ArrayList<>();
-    public GameRoom(String code) { this.code = code; }
+    public GameRoom(String code) {
+        this.code = code;
+    }
 }
