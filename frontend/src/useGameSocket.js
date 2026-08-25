@@ -17,6 +17,7 @@ const initial = {
     myHp: null,
     opponentHp: null,
     cardLocked: false,
+    moveLocked: false,
 };
 
 function reducer(state, msg) {
@@ -102,6 +103,10 @@ export function useGameSocket() {
             send({ type: "play_card", cardIndex });
             dispatch({ type: "local_card_played", cardIndex });
         },
-        chooseMove: (moveId) => send({ type: "choose_move", moveId }),
+        chooseMove: (moveId) => {
+            if (state.moveLocked) return;
+            send({ type: "choose_move", moveId });
+            dispatch({ type: "local_move_chosen" });
+        },
     };
 }
