@@ -28,16 +28,75 @@ body {
 .error { color: crimson; }
 
 
-.lobby { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-.room-code { font-size: 44px; letter-spacing: 10px; }
-.hint { color: #777; font-size: 14px; }
-.divider { color: #999; font-size: 13px; }
-.join { display: flex; gap: 8px; }
-.join input {
-    width: 120px; padding: 10px; font-size: 20px;
-    text-align: center; letter-spacing: 4px;
-    border: 1px solid var(--line); border-radius: 8px;
+body {
+    margin: 0;
+    background: #0a0f1e;
+    color: #e8ecff;
+    font-family: system-ui, -apple-system, sans-serif;
 }
+
+.lobby {
+    display: flex; flex-direction: column; align-items: center;
+    padding-top: 64px; text-align: center;
+}
+
+.lobby-title {
+    font-size: 40px; font-weight: 800; margin: 0 0 12px;
+    letter-spacing: -.5px;
+}
+.lobby-sub { color: #9aa8d0; font-size: 15px; margin: 0 0 36px; }
+.lobby-foot { color: #6b7799; font-size: 13px; margin-top: 28px; }
+
+.lobby-card {
+    width: 100%; max-width: 420px;
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 28px;
+    background: #111a30;
+    border: 1px solid rgba(120,150,255,.14);
+    border-radius: 18px;
+    text-align: left;
+}
+.lobby-card.waiting { align-items: center; text-align: center; }
+
+.field-label { font-size: 13px; color: #9aa8d0; margin: 0; }
+
+.field {
+    width: 100%; padding: 16px;
+    font-size: 17px; letter-spacing: 4px; text-align: center;
+    background: #0a0f1e; color: #e8ecff;
+    border: 1px solid rgba(120,150,255,.18);
+    border-radius: 12px;
+}
+.field::placeholder { color: #4a5578; }
+.field:focus { outline: none; border-color: #5b7cff; }
+
+.room-code {
+    font-size: 48px; letter-spacing: 12px; margin: 8px 0;
+}
+.hint { color: #6b7799; font-size: 13px; margin: 0; }
+
+.divider {
+    display: flex; align-items: center; gap: 12px;
+    color: #4a5578; font-size: 12px; margin: 4px 0;
+}
+.divider::before, .divider::after {
+    content: ""; flex: 1; height: 1px;
+    background: rgba(120,150,255,.14);
+}
+
+button {
+    padding: 14px 18px; font-size: 15px; font-weight: 600; cursor: pointer;
+    background: #1a2440; color: #e8ecff;
+    border: 1px solid rgba(120,150,255,.18);
+    border-radius: 12px;
+    transition: border-color .15s, background .15s;
+}
+button:hover:not(:disabled) { border-color: #5b7cff; }
+button:disabled { opacity: .4; cursor: default; }
+
+.block { width: 100%; }
+.primary { background: #5b7cff; border-color: #5b7cff; color: #fff; }
+.primary:hover:not(:disabled) { background: #6d8aff; }
 
 button {
     padding: 10px 16px; font-size: 15px; cursor: pointer;

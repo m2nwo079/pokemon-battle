@@ -3,35 +3,54 @@ import { useState } from "react";
 export default function Lobby({ state, createRoom, joinRoom }) {
     const [code, setCode] = useState("");
 
-    console.log("Lobby 렌더됨, phase =", state.phase);
-
     if (state.phase === "waiting") {
         return (
             <div className="lobby">
-                <p>방 코드</p>
-                <strong className="room-code">{state.roomCode}</strong>
-                <p className="hint">상대에게 알려 주고 기다리세요</p>
+                <h1 className="lobby-title">포켓몬 카드 배틀</h1>
+                <div className="lobby-card waiting">
+                    <p className="field-label">방 코드</p>
+                    <strong className="room-code">{state.roomCode}</strong>
+                    <p className="hint">상대에게 알려 주고 기다리세요</p>
+                </div>
             </div>
         );
     }
 
     return (
         <div className="lobby">
-            <button className="primary" onClick={createRoom}>방 만들기</button>
+            <h1 className="lobby-title">포켓몬 카드 배틀</h1>
+            <p className="lobby-sub">
+                랜덤으로 받은 6마리로 6라운드. 타입 상성이 스탯을 뒤집는다.
+            </p>
 
-            <div className="divider">또는</div>
+            <div className="lobby-card">
+                <button className="primary block" onClick={createRoom}>
+                    방 만들기
+                </button>
 
-            <div className="join">
+                <div className="divider"><span>또는</span></div>
+
+                <label className="field-label" htmlFor="code">방 코드</label>
                 <input
+                    id="code"
+                    className="field"
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
                     placeholder="ABCD"
                     maxLength={4}
                 />
-                <button onClick={() => joinRoom(code)} disabled={code.length !== 4}>
-                    입장
+                <button
+                    className="block"
+                    onClick={() => joinRoom(code)}
+                    disabled={code.length !== 4}
+                >
+                    입장하기
                 </button>
             </div>
+
+            <p className="lobby-foot">
+                같은 브라우저에서 시크릿 창을 하나 더 열면 혼자서도 양쪽을 다 해볼 수 있다.
+            </p>
         </div>
     );
 }
