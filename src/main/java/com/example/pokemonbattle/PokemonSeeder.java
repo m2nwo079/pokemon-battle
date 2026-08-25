@@ -117,6 +117,15 @@ public class PokemonSeeder {
         Object pp = data.get("pp");
         if (accuracy == null || pp == null) return null;
 
+        Map<String, Object> meta = (Map<String, Object>) data.get("meta");
+        if (meta == null) return null;
+
+        Map<String, Object> category = (Map<String, Object>) meta.get("category");
+        String cat = category == null ? "" : (String) category.get("name");
+        if (!"damage".equals(cat)) return null;         // 순수 공격기만
+
+        if (meta.get("max_turns") != null) return null; // 충전·반동 제외
+
         int id = (int) data.get("id");
         String name = koreanName(data, (String) data.get("name"));
         String type = (String) ((Map<String, Object>) data.get("type")).get("name");

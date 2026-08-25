@@ -53,7 +53,8 @@ public class Battle {
         def.takeDamage(damage);
 
         double eff = TypeChart.multiplier(move.getType(), def.getTypes());
-        r.hit(who, move, damage, eff, def.getCurrentHp());
+        boolean stab = atk.hasType(move.getType());   // 자속 여부
+        r.hit(who, move, damage, eff, stab, def.getCurrentHp());
     }
 
     private Move resolveMove(Card card, int moveId) {

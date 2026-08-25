@@ -8,15 +8,16 @@ public class TurnResult {
     public final List<Map<String, Object>> events = new ArrayList<>();
     public String winner;
 
-    public void hit(String who, Move move, int damage, double effect, int hpLeft) {
+    public void hit(String who, Move move, int damage, double effect,
+                    boolean stab, int hpLeft) {
         events.add(Map.of(
-                "type", "hit",
-                "who", who,
+                "type", "hit", "who", who,
                 "move", move.getName(),
                 "moveType", move.getType(),
                 "moveId", move.getId(),
                 "damage", damage,
                 "effectiveness", effect,
+                "stab", stab,
                 "hpLeft", hpLeft));
     }
 
