@@ -3,8 +3,8 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { MODES, effectFor } from './typeEffects'
 
-const MY_SIDE  = { x: -2.4, y: 0.95, z: -0.4, scale: 2.2 }
-const OPP_SIDE = { x:  2.4, y: 1.75, z: -3.4, scale: 1.5 }
+const MY_SIDE  = { x: -2.4, y: 1.35, z: 1.0, scale: 2.6 }
+const OPP_SIDE = { x: 2.4, y: 1.75, z: -3.4, scale: 1.9 }
 
 const MY_SIDE_X = MY_SIDE.x
 const OPP_SIDE_X = OPP_SIDE.x
@@ -179,8 +179,8 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
         scene.fog = new THREE.Fog(0x090d1a, 9, 18)
 
         const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100)
-        camera.position.set(0, 3.2, 8.0)
-        camera.lookAt(0, 1.3, -1.2)
+        camera.position.set(0, 3.2, 7.6)
+        camera.lookAt(0, 1.3, -1.0)
 
         const renderer = new THREE.WebGLRenderer({ antialias: true })
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -199,12 +199,12 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
 
         const myPlatform = makePlatform(0x4b8bff)
         myPlatform.position.set(MY_SIDE.x, 0, MY_SIDE.z)
-        myPlatform.scale.setScalar(1.15)
+        myPlatform.scale.setScalar(1.2)
         scene.add(myPlatform)
 
         const oppPlatform = makePlatform(0xff5a7a)
         oppPlatform.position.set(OPP_SIDE.x, 0, OPP_SIDE.z)
-        oppPlatform.scale.setScalar(0.65)
+        oppPlatform.scale.setScalar(0.7)
         scene.add(oppPlatform)
 
         const hiddenTexture = makeHiddenTexture()
