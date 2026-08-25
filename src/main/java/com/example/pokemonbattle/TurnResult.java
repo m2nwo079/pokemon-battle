@@ -9,7 +9,7 @@ public class TurnResult {
     public String winner;
 
     public void hit(String who, Move move, int damage, double effect,
-                    boolean stab, int hpLeft) {
+                    boolean stab, int hpLeft, int ppLeft) {
         events.add(Map.of(
                 "type", "hit", "who", who,
                 "move", move.getName(),
@@ -18,16 +18,17 @@ public class TurnResult {
                 "damage", damage,
                 "effectiveness", effect,
                 "stab", stab,
-                "hpLeft", hpLeft));
+                "hpLeft", hpLeft,
+                "ppLeft", ppLeft));
     }
 
-    public void miss(String who, Move move) {
+    public void miss(String who, Move move, int ppLeft) {
         events.add(Map.of(
-                "type", "miss",
-                "who", who,
+                "type", "miss", "who", who,
                 "move", move.getName(),
                 "moveType", move.getType(),
-                "moveId", move.getId()));
+                "moveId", move.getId(),
+                "ppLeft", ppLeft));
     }
 
     public void faint(String who) {

@@ -42,9 +42,10 @@ public class Battle {
     private void attack(String who, Fighter atk, Card card, Move move,
                         Fighter def, TurnResult r) {
         card.usePp(move.getId());
+        int ppLeft = card.ppLeft(move.getId());
 
         if (ThreadLocalRandom.current().nextInt(100) >= move.getAccuracy()) {
-            r.miss(who, move);
+            r.miss(who, move, ppLeft);
             return;
         }
 
@@ -53,8 +54,8 @@ public class Battle {
         def.takeDamage(damage);
 
         double eff = TypeChart.multiplier(move.getType(), def.getTypes());
-        boolean stab = atk.hasType(move.getType());   // 자속 여부
-        r.hit(who, move, damage, eff, stab, def.getCurrentHp());
+        boolean stab = atk.hasType(move.getType());
+        r.hit(who, move, damage, eff, stab, def.getCurrentHp(), ppLeft);
     }
 
     private Move resolveMove(Card card, int moveId) {

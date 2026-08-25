@@ -42,16 +42,26 @@ function reducer(state, msg) {
         case "turn_result": {
             let myHp = state.myHp;
             let oppHp = state.opponentHp;
+            let myCard = state.myCard;
 
             for (const e of msg.events) {
-                if (e.type !== "hit") continue;
-
-                if (e.who === state.me) oppHp = { ...oppHp, current: e.hpLeft };
-                else                    myHp  = { ...myHp,  current: e.hpLeft };
+                if (e.type === "hit") {
+                    if (e.who === state.me) oppHp = { ...oppHp, current: e.hpLeft };
+                    else                    myHp  = { ...myHp,  current: e.hpLeft };
+                }
+                if ((e.type === "hit" || e.type === "miss") && e.who === state.me
+                    && e.ppLeft !== undefined && myCard) {
+                    myCard = {
+                        ...myCard,
+                        moves: myCard.moves.map((m) =>
+                            m.moveId === e.moveId ? { ...m, currentPp: e.ppLeft } : m
+                        ),
+                    };
+                }
             }
 
-            return { ...state, opponentReady: false,
-                myHp, opponentHp: oppHp,
+            return { ...state, opponentReady: false, moveLocked: false,
+                myHp, opponentHp: oppHp, myCard,
                 log: [...state.log, ...msg.events] };
         }
 
@@ -71,6 +81,9 @@ function reducer(state, msg) {
         case "local_card_played":
             return { ...state, cardLocked: true,
                 hand: state.hand.filter((_, i) => i !== msg.cardIndex) };
+
+        case "local_move_chosen":
+            return { ...state, moveLocked: true };
 
         default:
             return state;
