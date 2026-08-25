@@ -50,43 +50,88 @@ button:disabled { opacity: .45; cursor: default; }
 .primary { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 
-.scoreboard {
-    display: flex; justify-content: space-between;
-    font-size: 14px; color: #666; margin-bottom: 16px;
-}
-.prompt { margin: 20px 0 8px; }
-.prompt em { color: #888; font-style: normal; font-size: 14px; }
+.app-full { max-width: none; padding: 0; }
 
-.hand { display: flex; flex-wrap: wrap; gap: 10px; }
+.battle { position: fixed; inset: 0; overflow: hidden; }
 
-.stage {
-    width: 100%;
-    height: 360px;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #090d1a;
+.stage { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* 무대 위에 얹히는 층 */
+.hud {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 16px;
+    pointer-events: none;              /* 무대 클릭이 막히지 않게 */
+    color: #e8ecff;
 }
-.vs { color: #aaa; font-weight: 600; }
+.hud > * { pointer-events: auto; }
+
+.hud-top {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+}
+.hud-mid { display: flex; justify-content: flex-end; }
+
+.hud-bottom {
+    display: flex; flex-direction: column; gap: 10px;
+    background: linear-gradient(to top, rgba(6,10,22,.92), rgba(6,10,22,.55) 70%, transparent);
+    margin: -16px; padding: 24px 16px 16px;
+}
+
+.round-chip, .score-chip {
+    background: rgba(10,16,34,.7); border: 1px solid rgba(120,150,255,.25);
+    border-radius: 999px; padding: 6px 14px; font-size: 13px;
+    backdrop-filter: blur(6px);
+}
+
+/* HP 상자 — 원작처럼 대각선 배치 */
+.hp-box {
+    min-width: 240px;
+    background: rgba(10,16,34,.78);
+    border: 1px solid rgba(120,150,255,.3);
+    border-radius: 10px; padding: 10px 14px;
+    backdrop-filter: blur(8px);
+}
+.hp-box.opp { align-self: flex-start; }
+.hp-box.me  { align-self: flex-end; }
+
+.hp-name { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.hp-track {
+    height: 8px; border-radius: 999px; overflow: hidden;
+    background: rgba(255,255,255,.12);
+}
+.hp-fill { height: 100%; transition: width .45s ease; }
+.hp-fill.ok     { background: #4ade80; }
+.hp-fill.warn   { background: #fbbf24; }
+.hp-fill.danger { background: #f87171; }
+.hp-num { font-size: 11px; color: #9aa8d0; margin-top: 4px; text-align: right; }
+
+.prompt { margin: 0; font-size: 14px; color: #c8d2f0; }
+.prompt em { color: #8b96b8; font-style: normal; font-size: 13px; }
+
+.hand { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
 
 .card-tile {
-    display: flex; flex-direction: column; align-items: center;
-    padding: 10px; min-width: 110px;
+    flex: 0 0 auto;
+    background: rgba(16,22,44,.85);
+    border: 1px solid rgba(120,150,255,.25);
+    color: #e8ecff;
+    padding: 8px; min-width: 92px;
 }
-.card-label { color: #888; font-size: 12px; }
-.card-name { font-size: 13px; margin-top: 4px; }
+.card-tile:hover:not(:disabled) { border-color: #6b8bff; }
+.card-name { font-size: 12px; }
 
 .move-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.move { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
-.move-name { font-weight: 600; }
-.move-meta { font-size: 12px; color: #777; }
-
-.type-chip {
-    display: inline-block; padding: 2px 8px; border-radius: 999px;
-    color: #fff; font-size: 11px; text-transform: uppercase;
+.move {
+    background: rgba(16,22,44,.85);
+    border: 1px solid rgba(120,150,255,.25);
+    color: #e8ecff;
 }
+.move-meta { color: #9aa8d0; }
 
 .log {
-    list-style: none; padding: 12px; margin-top: 20px;
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: 8px; font-size: 14px; line-height: 1.9;
+    list-style: none; margin: 0; padding: 10px 14px;
+    background: rgba(10,16,34,.7);
+    border: 1px solid rgba(120,150,255,.2);
+    border-radius: 8px; font-size: 13px; line-height: 1.7;
+    color: #c8d2f0;
 }

@@ -17,23 +17,28 @@ export default function App() {
     return <div className="app center">서버를 깨우는 중입니다 (최대 1분)</div>;
   }
 
-  console.log("phase =", state.phase);
+  const inBattle = ["picking", "battle", "roundEnd"].includes(state.phase);
+
   return (
-      <div className="app">
-        <h1>포켓몬 카드 배틀</h1>
+      <div className={inBattle ? "app app-full" : "app"}>
+        {!inBattle && <h1>포켓몬 카드 배틀</h1>}
         {state.error && <p className="error">{state.error}</p>}
 
         {(state.phase === "lobby" || state.phase === "waiting") && (
             <Lobby state={state} createRoom={createRoom} joinRoom={joinRoom} />
         )}
 
-        {["picking", "battle", "roundEnd"].includes(state.phase) && (
+        {inBattle && (
             <Battle state={state} playCard={playCard} chooseMove={chooseMove} />
         )}
 
         {state.phase === "gameEnd" && (
             <div className="center">
-              <h2>{state.winner === "draw" ? "무승부" : `${state.winner === "p1" ? "1P" : "2P"} 승리`}</h2>
+              <h2>
+                {state.winner === "draw"
+                    ? "무승부"
+                    : `${state.winner === state.me ? "승리" : "패배"}`}
+              </h2>
               <p>{state.wins[0]} 대 {state.wins[1]}</p>
               <button className="primary" onClick={() => window.location.reload()}>
                 다시 하기
