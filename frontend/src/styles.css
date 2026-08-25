@@ -88,7 +88,8 @@ button:disabled {
 
 .hud {
     position: absolute; inset: 0;
-    display: flex; flex-direction: column; justify-content: space-between;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
     padding: 16px;
     pointer-events: none;
     color: #e8ecff;
@@ -96,9 +97,18 @@ button:disabled {
 .hud > * { pointer-events: auto; }
 
 .hud-top {
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    display: flex; align-items: flex-start; gap: 12px;
 }
-.hud-mid { display: flex; justify-content: flex-end; }
+.hud-top .round-chip { flex: 0 0 auto; }
+.hud-top .score-chip { flex: 0 0 auto; margin-left: auto; }
+.hud-top .hp-box { margin-left: 16px; }
+
+.hud-mid {
+    display: flex; align-items: flex-end; justify-content: flex-end;
+    padding-bottom: 12px;
+    pointer-events: none;
+}
+.hud-mid > * { pointer-events: auto; }
 
 .hud-bottom {
     display: flex; flex-direction: column; gap: 10px;
@@ -122,8 +132,6 @@ button:disabled {
     border-radius: 10px; padding: 10px 14px;
     backdrop-filter: blur(8px);
 }
-.hp-box.opp { align-self: flex-start; }
-.hp-box.me  { align-self: flex-end; }
 
 .hp-name { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
 .hp-track {
