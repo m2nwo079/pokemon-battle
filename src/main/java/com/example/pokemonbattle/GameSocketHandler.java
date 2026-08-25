@@ -109,12 +109,18 @@ public class GameSocketHandler extends TextWebSocketHandler {
         Fighter f1 = fighterOf(room.played[1]);
         room.battle = new Battle(f0, room.played[0], f1, room.played[1]);
 
+        Fighter[] fs = { f0, f1 };
+
         for (int i = 0; i < 2; i++) {
+            Fighter mine = fs[i], theirs = fs[1 - i];
             send(room.players.get(i).session, Map.of(
                     "type", "round_start",
                     "round", room.round,
+                    "me", i == 0 ? "p1" : "p2",
                     "myCard", room.played[i].toPayload(true),
-                    "opponentCard", room.played[1 - i].toPayload(false)));
+                    "opponentCard", room.played[1 - i].toPayload(false),
+                    "myHp", Map.of("current", mine.getCurrentHp(), "max", mine.getMaxHp()),
+                    "opponentHp", Map.of("current", theirs.getCurrentHp(), "max", theirs.getMaxHp())));
         }
     }
 
