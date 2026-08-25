@@ -33,11 +33,9 @@ export default function Battle({ state, playCard, chooseMove }) {
                     {phase === "picking" && (
                         <>
                             <p className="prompt">
-                                {moveLocked ? "상대를 기다리는 중" : "기술을 고르세요"}
-                                {opponentReady && !moveLocked && <em> · 상대는 이미 골랐습니다</em>}
+                                {cardLocked ? "상대를 기다리는 중" : "낼 카드를 고르세요"}
+                                {opponentReady && !cardLocked && <em> · 상대는 이미 냈습니다</em>}
                             </p>
-                            <MoveBar moves={myCard.moves} onChoose={chooseMove}
-                                     disabled={moveLocked} />
                             <div className="hand">
                                 {hand.map((c, i) => (
                                     <CardTile key={c.pokemonId} card={c}
@@ -52,10 +50,11 @@ export default function Battle({ state, playCard, chooseMove }) {
                         <>
                             <BattleLog events={log} me={me} />
                             <p className="prompt">
-                                기술을 고르세요
-                                {opponentReady && <em> · 상대는 이미 골랐습니다</em>}
+                                {moveLocked ? "상대를 기다리는 중" : "기술을 고르세요"}
+                                {opponentReady && !moveLocked && <em> · 상대는 이미 골랐습니다</em>}
                             </p>
-                            <MoveBar moves={myCard.moves} onChoose={chooseMove} />
+                            <MoveBar moves={myCard.moves} onChoose={chooseMove}
+                                     disabled={moveLocked} />
                         </>
                     )}
                 </div>
