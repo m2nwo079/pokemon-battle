@@ -1,32 +1,4 @@
-:root {
-    --bg: #f7f7fa;
-    --card: #ffffff;
-    --line: #d8d8e0;
-    --text: #22222a;
-    --accent: #3b5bdb;
-}
-
 * { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: system-ui, -apple-system, sans-serif;
-}
-
-.app {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 24px 16px 64px;
-}
-
-.app h1 { font-size: 22px; margin-bottom: 24px; }
-
-.center { text-align: center; padding-top: 80px; }
-
-.error { color: crimson; }
-
 
 body {
     margin: 0;
@@ -35,15 +7,40 @@ body {
     font-family: system-ui, -apple-system, sans-serif;
 }
 
+.app { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+.app-full { max-width: none; padding: 0; }
+
+.center { text-align: center; padding-top: 80px; }
+.error { color: #f87171; }
+
+/* ---------- 버튼 ---------- */
+
+button {
+    padding: 14px 18px; font-size: 15px; font-weight: 600; cursor: pointer;
+    background: #1a2440; color: #e8ecff;
+    border: 1px solid rgba(120,150,255,.18);
+    border-radius: 12px;
+    transition: border-color .15s, background .15s;
+}
+button:hover:not(:disabled) { border-color: #5b7cff; }
+button:disabled {
+    cursor: default;
+    color: #6b7799; background: #141c34;
+    border-color: rgba(120,150,255,.1);
+}
+
+.block { width: 100%; }
+.primary { background: #5b7cff; border-color: #5b7cff; color: #fff; }
+.primary:hover:not(:disabled) { background: #6d8aff; }
+
+/* ---------- 로비 ---------- */
+
 .lobby {
     display: flex; flex-direction: column; align-items: center;
     padding-top: 64px; text-align: center;
 }
 
-.lobby-title {
-    font-size: 40px; font-weight: 800; margin: 0 0 12px;
-    letter-spacing: -.5px;
-}
+.lobby-title { font-size: 40px; font-weight: 800; margin: 0 0 12px; letter-spacing: -.5px; }
 .lobby-sub { color: #9aa8d0; font-size: 15px; margin: 0 0 36px; }
 .lobby-foot { color: #6b7799; font-size: 13px; margin-top: 28px; }
 
@@ -70,9 +67,7 @@ body {
 .field::placeholder { color: #4a5578; }
 .field:focus { outline: none; border-color: #5b7cff; }
 
-.room-code {
-    font-size: 48px; letter-spacing: 12px; margin: 8px 0;
-}
+.room-code { font-size: 48px; letter-spacing: 12px; margin: 8px 0; }
 .hint { color: #6b7799; font-size: 13px; margin: 0; }
 
 .divider {
@@ -84,46 +79,18 @@ body {
     background: rgba(120,150,255,.14);
 }
 
-button {
-    padding: 14px 18px; font-size: 15px; font-weight: 600; cursor: pointer;
-    background: #1a2440; color: #e8ecff;
-    border: 1px solid rgba(120,150,255,.18);
-    border-radius: 12px;
-    transition: border-color .15s, background .15s;
-}
-button:hover:not(:disabled) { border-color: #5b7cff; }
-button:disabled {
-    opacity: 1; cursor: default;
-    color: #6b7799; background: #141c34;
-    border-color: rgba(120,150,255,.1);
-}
-.block { width: 100%; }
-.primary { background: #5b7cff; border-color: #5b7cff; color: #fff; }
-.primary:hover:not(:disabled) { background: #6d8aff; }
-
-button {
-    padding: 10px 16px; font-size: 15px; cursor: pointer;
-    border: 1px solid var(--line); border-radius: 8px;
-    background: var(--card); color: inherit;
-}
-button:hover:not(:disabled) { border-color: var(--accent); }
-button:disabled { opacity: .45; cursor: default; }
-
-.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-
-.app-full { max-width: none; padding: 0; }
+/* ---------- 전투 무대 ---------- */
 
 .battle { position: fixed; inset: 0; overflow: hidden; }
 
 .stage { position: absolute; inset: 0; width: 100%; height: 100%; }
 .stage canvas { display: block; width: 100% !important; height: 100% !important; }
-/* 무대 위에 얹히는 층 */
+
 .hud {
     position: absolute; inset: 0;
     display: flex; flex-direction: column; justify-content: space-between;
     padding: 16px;
-    pointer-events: none;              /* 무대 클릭이 막히지 않게 */
+    pointer-events: none;
     color: #e8ecff;
 }
 .hud > * { pointer-events: auto; }
@@ -140,12 +107,14 @@ button:disabled { opacity: .45; cursor: default; }
 }
 
 .round-chip, .score-chip {
-    background: rgba(10,16,34,.7); border: 1px solid rgba(120,150,255,.25);
+    background: rgba(10,16,34,.7);
+    border: 1px solid rgba(120,150,255,.25);
     border-radius: 999px; padding: 6px 14px; font-size: 13px;
     backdrop-filter: blur(6px);
 }
 
-/* HP 상자 — 원작처럼 대각선 배치 */
+/* ---------- HP ---------- */
+
 .hp-box {
     min-width: 240px;
     background: rgba(10,16,34,.78);
@@ -167,6 +136,8 @@ button:disabled { opacity: .45; cursor: default; }
 .hp-fill.danger { background: #f87171; }
 .hp-num { font-size: 11px; color: #9aa8d0; margin-top: 4px; text-align: right; }
 
+/* ---------- 손패와 기술 ---------- */
+
 .prompt { margin: 0; font-size: 14px; color: #c8d2f0; }
 .prompt em { color: #8b96b8; font-style: normal; font-size: 13px; }
 
@@ -174,21 +145,29 @@ button:disabled { opacity: .45; cursor: default; }
 
 .card-tile {
     flex: 0 0 auto;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
     background: rgba(16,22,44,.85);
     border: 1px solid rgba(120,150,255,.25);
     color: #e8ecff;
     padding: 8px; min-width: 92px;
 }
 .card-tile:hover:not(:disabled) { border-color: #6b8bff; }
-.card-name { font-size: 12px; }
+.card-name { font-size: 12px; font-weight: 400; }
 
 .move-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
 .move {
+    display: flex; flex-direction: column; align-items: flex-start;
+    gap: 6px;
+    padding: 12px 14px;
     background: rgba(16,22,44,.85);
     border: 1px solid rgba(120,150,255,.25);
     color: #e8ecff;
 }
-.move-meta { color: #9aa8d0; }
+.move-name { font-size: 16px; font-weight: 600; line-height: 1.2; }
+.move-meta { font-size: 12px; font-weight: 400; color: #9aa8d0; }
+
+/* ---------- 로그 ---------- */
 
 .log {
     list-style: none; margin: 0; padding: 10px 14px;
@@ -196,4 +175,11 @@ button:disabled { opacity: .45; cursor: default; }
     border: 1px solid rgba(120,150,255,.2);
     border-radius: 8px; font-size: 13px; line-height: 1.7;
     color: #c8d2f0;
+}
+
+/* ---------- 타입 배지 ---------- */
+
+.type-chip {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    color: #fff; font-size: 11px; text-transform: uppercase;
 }
