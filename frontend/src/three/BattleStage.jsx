@@ -268,8 +268,8 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
         animate()
 
         const resize = () => {
-            const { clientWidth: w, clientHeight: h } = mount
-            if (!w || !h) return
+            const w = mount.clientWidth || window.innerWidth
+            const h = mount.clientHeight || window.innerHeight
             renderer.setSize(w, h, false)
             camera.aspect = w / h
             camera.updateProjectionMatrix()
