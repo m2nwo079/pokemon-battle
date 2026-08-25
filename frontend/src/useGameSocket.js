@@ -13,6 +13,9 @@ const initial = {
     winner: null,
     opponentReady: false,
     error: null,
+    me: "p1",
+    myHp: null,
+    opponentHp: null,
 };
 
 function reducer(state, msg) {
@@ -29,11 +32,26 @@ function reducer(state, msg) {
 
         case "round_start":
             return { ...state, phase: "battle", round: msg.round,
+                me: msg.me,
                 myCard: msg.myCard, opponentCard: msg.opponentCard,
+                myHp: msg.myHp, opponentHp: msg.opponentHp,
                 opponentReady: false, log: [] };
 
-        case "turn_result":
-            return { ...state, opponentReady: false, log: [...state.log, ...msg.events] };
+        case "turn_result": {
+            let myHp = state.myHp;
+            let oppHp = state.opponentHp;
+
+            for (const e of msg.events) {
+                if (e.type !== "hit") continue;
+
+                if (e.who === state.me) oppHp = { ...oppHp, current: e.hpLeft };
+                else                    myHp  = { ...myHp,  current: e.hpLeft };
+            }
+
+            return { ...state, opponentReady: false,
+                myHp, opponentHp: oppHp,
+                log: [...state.log, ...msg.events] };
+        }
 
         case "round_end":
             return { ...state, phase: "picking", wins: msg.wins,
