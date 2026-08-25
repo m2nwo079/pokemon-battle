@@ -3,8 +3,12 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { MODES, effectFor } from './typeEffects'
 
-const MY_SIDE_X = -2.4
-const OPP_SIDE_X = 2.4
+const MY_SIDE  = { x: -2.5, y: 1.30, z:  2.4, scale: 3.2 }
+const OPP_SIDE = { x:  2.5, y: 1.55, z: -1.6, scale: 2.1 }
+
+const MY_SIDE_X = MY_SIDE.x
+const OPP_SIDE_X = OPP_SIDE.x
+
 const EMITTER_COUNT = 4
 const EMITTER_CAPACITY = 240
 
@@ -162,7 +166,7 @@ function updateEmitter(emitter, dt) {
     }
 }
 
-export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitKey, events }) {
+export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitKey, events, me }) {
     const mountRef = useRef(null)
     const sceneRef = useRef(null)
 
@@ -175,8 +179,8 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
         scene.fog = new THREE.Fog(0x090d1a, 9, 18)
 
         const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100)
-        camera.position.set(0, 3.1, 7.6)
-        camera.lookAt(0, 1.1, 0)
+        camera.position.set(0, 2.8, 6.4)
+        camera.lookAt(0, 1.3, 0.2)
 
         const renderer = new THREE.WebGLRenderer({ antialias: true })
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -194,11 +198,13 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
         scene.add(grid)
 
         const myPlatform = makePlatform(0x4b8bff)
-        myPlatform.position.set(MY_SIDE_X, 0, 0)
+        myPlatform.position.set(MY_SIDE.x, 0, MY_SIDE.z)
+        myPlatform.scale.setScalar(1.3)
         scene.add(myPlatform)
 
         const oppPlatform = makePlatform(0xff5a7a)
-        oppPlatform.position.set(OPP_SIDE_X, 0, 0)
+        oppPlatform.position.set(OPP_SIDE.x, 0, OPP_SIDE.z)
+        oppPlatform.scale.setScalar(0.85)
         scene.add(oppPlatform)
 
         const hiddenTexture = makeHiddenTexture()
@@ -212,11 +218,13 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
         }
 
         const mySprite = makeSprite()
-        mySprite.position.x = MY_SIDE_X
+        mySprite.position.set(MY_SIDE.x, MY_SIDE.y, MY_SIDE.z)
+        mySprite.scale.set(MY_SIDE.scale, MY_SIDE.scale, 1)
         scene.add(mySprite)
 
         const oppSprite = makeSprite()
-        oppSprite.position.x = OPP_SIDE_X
+        oppSprite.position.set(OPP_SIDE.x, OPP_SIDE.y, OPP_SIDE.z)
+        oppSprite.scale.set(OPP_SIDE.scale, OPP_SIDE.scale, 1)
         scene.add(oppSprite)
 
         const emitters = Array.from({ length: EMITTER_COUNT }, () => {
@@ -238,8 +246,8 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
             myPlatform.rotation.y += dt * 0.35
             oppPlatform.rotation.y -= dt * 0.35
 
-            mySprite.position.y = 1.45 + Math.sin(t * 1.6) * 0.09
-            oppSprite.position.y = 1.45 + Math.sin(t * 1.6 + 1.7) * 0.09
+            mySprite.position.y = MY_SIDE.y + Math.sin(t * 1.6) * 0.09
+            oppSprite.position.y = OPP_SIDE.y + Math.sin(t * 1.6 + 1.7) * 0.09
 
             for (let i = shake.length - 1; i >= 0; i--) {
                 const s = shake[i]
@@ -306,13 +314,13 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
         loader.setCrossOrigin('anonymous')
         let cancelled = false
 
-        const apply = (sprite, card) => {
+        const apply = (sprite, card, back) => {
             if (!card) {
                 sprite.material.map = ctx.hiddenTexture
                 sprite.material.needsUpdate = true
                 return
             }
-            loader.load(spriteUrl(card.pokemonId), (texture) => {
+            loader.load(spriteUrl(card.pokemonId, back), (texture) => {
                 if (cancelled) { texture.dispose(); return }
                 texture.colorSpace = THREE.SRGBColorSpace
                 const previous = sprite.material.map
@@ -322,8 +330,8 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
             })
         }
 
-        apply(ctx.mySprite, myCard)
-        apply(ctx.oppSprite, opponentCard)
+        apply(ctx.mySprite, myCard, true)
+        apply(ctx.oppSprite, opponentCard, false)
 
         return () => { cancelled = true }
     }, [myCard?.pokemonId, opponentCard?.pokemonId])
@@ -336,7 +344,7 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
         events.forEach((event, index) => {
             if (event.type === 'faint') return          // 기절은 이펙트 없음
 
-            const attackerIsMe = event.who === 'p1'
+            const attackerIsMe = event.who === me
             const from = attackerIsMe ? MY_SIDE_X : OPP_SIDE_X
             const to = attackerIsMe ? OPP_SIDE_X : MY_SIDE_X
             const cfg = effectFor(event.moveType, event.moveId)
@@ -358,7 +366,7 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
         })
 
         return () => timers.forEach(clearTimeout)
-    }, [hitKey, events])
+    }, [hitKey, events, me])
 
     useEffect(() => {
         const ctx = sceneRef.current
