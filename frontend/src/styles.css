@@ -191,3 +191,34 @@ button:disabled {
     display: inline-block; padding: 2px 8px; border-radius: 999px;
     color: #fff; font-size: 11px; text-transform: uppercase;
 }
+
+@media (max-width: 640px) {
+    /* 로비 */
+    .lobby { padding-top: 40px; }
+    .lobby-title { font-size: 30px; }
+    .lobby-card { padding: 20px; }
+    .room-code { font-size: 36px; letter-spacing: 8px; }
+
+    /* HP 상자 — 화면 폭에 맞춰 좁게 */
+    .hp-box { width: 200px; }
+    .hp-name { font-size: 13px; }
+    .hp-slot.opp { top: 60px; left: 12px; }
+    .hp-slot.me  { top: 42%; right: 12px; }
+
+    /* 칩 */
+    .round-chip, .score-chip { font-size: 12px; padding: 5px 10px; }
+
+    /* 손패 — 한 줄 가로 스크롤 유지, 카드 작게 */
+    .card-tile { min-width: 76px; padding: 6px; }
+    .card-tile img { width: 64px; height: 64px; }
+    .card-name { font-size: 11px; }
+
+    /* 기술 — 세로 화면에선 한 줄에 하나 */
+    .move-bar { grid-template-columns: 1fr; gap: 6px; }
+    .move { padding: 10px 12px; }
+    .move-name { font-size: 15px; }
+
+    /* 로그 — 너무 크지 않게 */
+    .hud-bottom { padding: 16px 12px 12px; gap: 8px; }
+    .log { font-size: 12px; padding: 8px 12px; }
+}

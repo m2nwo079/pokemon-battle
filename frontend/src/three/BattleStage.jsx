@@ -272,6 +272,12 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
             const h = mount.clientHeight || window.innerHeight
             renderer.setSize(w, h, false)
             camera.aspect = w / h
+
+            // 세로 화면이면 카메라를 뒤로 빼서 다 담기게
+            const portrait = h > w
+            camera.position.z = portrait ? 10.5 : 7.6
+            camera.position.y = portrait ? 3.6 : 3.2
+
             camera.updateProjectionMatrix()
         }
         resize()
