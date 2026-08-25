@@ -5,5 +5,5 @@ export const wsUrl = () => `${WS_BASE}/ws`;
 
 export const wakeServer = () => fetch(`${API_BASE}/health`);
 
-export const spriteUrl = (pokemonId) =>
-    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
+export const spriteUrl = (pokemonId, back = false) =>
+    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${back ? "back/" : ""}${pokemonId}.png`;
