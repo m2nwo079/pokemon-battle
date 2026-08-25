@@ -97,5 +97,7 @@ function describe(e, me) {
             e.effectiveness === 0 ? " 효과가 없었다" :
                 e.effectiveness < 1 ? " 효과가 별로였다" : "";
 
-    return `${who} ${e.move} — ${e.damage}${eff}`;
+    const stab = e.stab ? " (자속)" : "";
+
+    return `${who} ${e.move} — ${e.damage}${stab}${eff}`;
 }
