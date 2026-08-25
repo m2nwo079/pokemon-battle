@@ -1,13 +1,10 @@
-import { useRef } from "react";
 import BattleStage from "../three/BattleStage";
 import CardTile from "../components/CardTile";
 import MoveBar from "../components/MoveBar";
 
 export default function Battle({ state, playCard, chooseMove }) {
     const { phase, hand, myCard, opponentCard, round, wins,
-        log, opponentReady, me, myHp, opponentHp } = state;
-    const hitKey = useRef(0);
-    if (log.length) hitKey.current = log.length;
+        log, opponentReady, me, myHp, opponentHp, cardLocked } = state;
 
     return (
         <div className="battle">
@@ -15,7 +12,7 @@ export default function Battle({ state, playCard, chooseMove }) {
                 myCard={myCard}
                 opponentCard={opponentCard}
                 opponentPlayed={opponentReady}
-                hitKey={hitKey.current}
+                hitKey={log.length}
                 events={log}
                 me={me}
             />
@@ -35,13 +32,14 @@ export default function Battle({ state, playCard, chooseMove }) {
                     {phase === "picking" && (
                         <>
                             <p className="prompt">
-                                낼 카드를 고르세요
-                                {opponentReady && <em> · 상대는 이미 냈습니다</em>}
+                                {cardLocked ? "상대를 기다리는 중" : "낼 카드를 고르세요"}
+                                {opponentReady && !cardLocked && <em> · 상대는 이미 냈습니다</em>}
                             </p>
                             <div className="hand">
                                 {hand.map((c, i) => (
                                     <CardTile key={c.pokemonId} card={c}
-                                              onClick={() => playCard(i)} />
+                                              onClick={() => playCard(i)}
+                                              disabled={cardLocked} />
                                 ))}
                             </div>
                         </>

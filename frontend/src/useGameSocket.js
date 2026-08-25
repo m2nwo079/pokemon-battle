@@ -16,6 +16,7 @@ const initial = {
     me: "p1",
     myHp: null,
     opponentHp: null,
+    cardLocked: false,
 };
 
 function reducer(state, msg) {
@@ -35,7 +36,7 @@ function reducer(state, msg) {
                 me: msg.me,
                 myCard: msg.myCard, opponentCard: msg.opponentCard,
                 myHp: msg.myHp, opponentHp: msg.opponentHp,
-                opponentReady: false, log: [] };
+                cardLocked: false, opponentReady: false, log: [] };
 
         case "turn_result": {
             let myHp = state.myHp;
@@ -56,7 +57,9 @@ function reducer(state, msg) {
         case "round_end":
             return { ...state, phase: "picking", wins: msg.wins,
                 myCard: null, opponentCard: null,
-                round: state.round + 1, opponentReady: false, log: [] };
+                myHp: null, opponentHp: null,
+                round: state.round + 1,
+                cardLocked: false, opponentReady: false, log: [] };
 
         case "game_end":
             return { ...state, phase: "gameEnd", winner: msg.winner, wins: msg.wins };
@@ -65,7 +68,7 @@ function reducer(state, msg) {
             return { ...state, error: msg.message };
 
         case "local_card_played":
-            return { ...state,
+            return { ...state, cardLocked: true,
                 hand: state.hand.filter((_, i) => i !== msg.cardIndex) };
 
         default:
@@ -95,6 +98,7 @@ export function useGameSocket() {
         createRoom: () => send({ type: "create_room" }),
         joinRoom: (roomCode) => send({ type: "join_room", roomCode }),
         playCard: (cardIndex) => {
+            if (state.cardLocked) return;
             send({ type: "play_card", cardIndex });
             dispatch({ type: "local_card_played", cardIndex });
         },
