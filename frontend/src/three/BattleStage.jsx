@@ -3,8 +3,8 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { MODES, effectFor } from './typeEffects'
 
-const MY_SIDE  = { x: -2.5, y: 1.30, z:  2.4, scale: 3.2 }
-const OPP_SIDE = { x:  2.5, y: 1.55, z: -1.6, scale: 2.1 }
+const MY_SIDE  = { x: -2.6, y: 1.15, z:  0.6, scale: 2.6 }
+const OPP_SIDE = { x:  2.6, y: 1.55, z: -1.8, scale: 2.0 }
 
 const MY_SIDE_X = MY_SIDE.x
 const OPP_SIDE_X = OPP_SIDE.x
@@ -179,8 +179,8 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
         scene.fog = new THREE.Fog(0x090d1a, 9, 18)
 
         const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100)
-        camera.position.set(0, 2.8, 6.4)
-        camera.lookAt(0, 1.3, 0.2)
+        camera.position.set(0, 3.0, 7.2)
+        camera.lookAt(0, 1.3, -0.3)
 
         const renderer = new THREE.WebGLRenderer({ antialias: true })
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
