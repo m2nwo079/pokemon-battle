@@ -92,8 +92,11 @@ button {
     transition: border-color .15s, background .15s;
 }
 button:hover:not(:disabled) { border-color: #5b7cff; }
-button:disabled { opacity: .4; cursor: default; }
-
+button:disabled {
+    opacity: 1; cursor: default;
+    color: #6b7799; background: #141c34;
+    border-color: rgba(120,150,255,.1);
+}
 .block { width: 100%; }
 .primary { background: #5b7cff; border-color: #5b7cff; color: #fff; }
 .primary:hover:not(:disabled) { background: #6d8aff; }
