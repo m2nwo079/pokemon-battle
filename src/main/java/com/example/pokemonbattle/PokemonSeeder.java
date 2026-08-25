@@ -35,6 +35,10 @@ public class PokemonSeeder {
     public void run() {
         System.out.println("=== 시딩 시작 ===");
 
+        pokemonMoveRepository.deleteAllInBatch();
+        moveRepository.deleteAllInBatch();
+        pokemonRepository.deleteAllInBatch();
+        System.out.println("기존 데이터 삭제 완료");
         Map<Integer, List<String>> learnable = new HashMap<>();
         Set<String> allMoveNames = new HashSet<>();
 
