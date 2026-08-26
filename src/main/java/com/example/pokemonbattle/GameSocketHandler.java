@@ -187,7 +187,20 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        roomOf.remove(session.getId());
-        playerOf.remove(session.getId());
+        GameRoom room = roomOf.remove(session.getId());
+        Player me = playerOf.remove(session.getId());
+        if (room == null || me == null) return;
+
+        int myIndex = room.players.indexOf(me);
+        if (myIndex == -1) return;
+
+        Player opponent = room.players.get(1 - myIndex);
+        try {
+            send(opponent.session, Map.of(
+                    "type", "opponent_left",
+                    "message", "상대가 나갔습니다"));
+        } catch (Exception ignored) {}
+
+        rooms.remove(room.code);
     }
 }

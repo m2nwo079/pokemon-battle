@@ -31,4 +31,8 @@ public class RoomRegistry {
         }
         return sb.toString();
     }
+
+    public void remove(String code) {
+        rooms.remove(code);
+    }
 }
