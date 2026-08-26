@@ -9,7 +9,11 @@ spring:
     url: ${DATABASE_URL}
     hikari:
       maximum-pool-size: 3
+      minimum-idle: 0
       connection-timeout: 30000
+      idle-timeout: 60000
+      max-lifetime: 240000
+      initialization-fail-timeout: -1
   jpa:
     open-in-view: false
     hibernate:

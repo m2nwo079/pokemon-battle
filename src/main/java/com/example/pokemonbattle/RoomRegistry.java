@@ -1,26 +1,45 @@
 package com.example.pokemonbattle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 public class RoomRegistry {
+
+    private static final Logger log = LoggerFactory.getLogger(RoomRegistry.class);
+
     private final Map<String, GameRoom> rooms = new ConcurrentHashMap<>();
 
     public GameRoom create() {
-        String code;
-        do {
-            code = randomCode();
-        } while (rooms.containsKey(code));
-        GameRoom room = new GameRoom(code);
-        rooms.put(code, room);
-        return room;
+        while (true) {
+            String code = randomCode();
+            GameRoom room = new GameRoom(code);
+
+            if (rooms.putIfAbsent(code, room) == null) {
+                log.info("방 생성 {} (현재 {}개)", code, rooms.size());
+                return room;
+            }
+        }
     }
 
     public GameRoom find(String code) {
-        return rooms.get(code);
+        if (code == null) return null;
+        return rooms.get(code.trim().toUpperCase());
+    }
+
+    public void remove(String code) {
+        if (rooms.remove(code) != null) {
+            log.info("방 삭제 {} (남은 {}개)", code, rooms.size());
+        }
+    }
+
+    public int size() {
+        return rooms.size();
     }
 
     private String randomCode() {
@@ -30,9 +49,5 @@ public class RoomRegistry {
             sb.append(chars.charAt(ThreadLocalRandom.current().nextInt(chars.length())));
         }
         return sb.toString();
-    }
-
-    public void remove(String code) {
-        rooms.remove(code);
     }
 }

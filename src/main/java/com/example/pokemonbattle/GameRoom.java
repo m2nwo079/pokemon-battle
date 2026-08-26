@@ -11,15 +11,23 @@ public class GameRoom {
     public int round = 0;
     public int[] wins = new int[2];
 
+    @SuppressWarnings("unchecked")
     public List<Card>[] hands = new List[2];
     public Card[] played = new Card[2];
     public Integer[] chosenMove = new Integer[2];
     public Battle battle;
 
+    public boolean finished = false;
+
     public GameRoom(String code) { this.code = code; }
 
     public int indexOf(Player p) { return players.indexOf(p); }
-    public Player opponentOf(int me) { return players.get(1 - me); }
+
+    public Player opponentOf(int me) {
+        int other = 1 - me;
+        if (other < 0 || other >= players.size()) return null;
+        return players.get(other);
+    }
 
     public boolean bothPlayed() { return played[0] != null && played[1] != null; }
     public boolean bothChose()  { return chosenMove[0] != null && chosenMove[1] != null; }

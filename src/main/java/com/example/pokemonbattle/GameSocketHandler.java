@@ -1,21 +1,26 @@
 package com.example.pokemonbattle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class GameSocketHandler extends TextWebSocketHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GameSocketHandler.class);
 
     private final RoomRegistry rooms;
     private final CardFactory cards;
     private final ObjectMapper json = new ObjectMapper();
 
-    private final Map<String, GameRoom> roomOf = new HashMap<>();
-    private final Map<String, Player> playerOf = new HashMap<>();
+    private final Map<String, GameRoom> roomOf = new ConcurrentHashMap<>();
+    private final Map<String, Player> playerOf = new ConcurrentHashMap<>();
 
     public GameSocketHandler(RoomRegistry rooms, CardFactory cards) {
         this.rooms = rooms;
@@ -23,25 +28,45 @@ public class GameSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        Map<String, Object> msg = json.readValue(message.getPayload(), Map.class);
-        String type = (String) msg.get("type");
+    @SuppressWarnings("unchecked")
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+        try {
+            Map<String, Object> msg = json.readValue(message.getPayload(), Map.class);
+            String type = String.valueOf(msg.get("type"));
 
-        switch (type) {
-            case "create_room" -> createRoom(session);
-            case "join_room"   -> joinRoom(session, (String) msg.get("roomCode"));
-            case "play_card"   -> playCard(session, (int) msg.get("cardIndex"));
-            case "choose_move" -> chooseMove(session, (int) msg.get("moveId"));
-            default -> send(session, Map.of("type", "error",
-                    "code", "unknown_type", "message", "모르는 요청입니다"));
+            switch (type) {
+                case "create_room" -> createRoom(session);
+                case "join_room"   -> joinRoom(session, asString(msg.get("roomCode")));
+                case "play_card"   -> playCard(session, asInt(msg.get("cardIndex")));
+                case "choose_move" -> chooseMove(session, asInt(msg.get("moveId")));
+                default -> send(session, Map.of("type", "error",
+                        "code", "unknown_type", "message", "모르는 요청입니다"));
+            }
+        } catch (Exception e) {
+            log.warn("메시지 처리 실패: {}", message.getPayload(), e);
+            send(session, Map.of("type", "error",
+                    "code", "bad_request", "message", "요청을 처리하지 못했습니다"));
         }
     }
 
+    private static String asString(Object v) {
+        if (v == null) throw new IllegalArgumentException("값이 없습니다");
+        return v.toString();
+    }
 
-    private void createRoom(WebSocketSession session) throws Exception {
+    private static int asInt(Object v) {
+        if (v instanceof Number n) return n.intValue();
+        throw new IllegalArgumentException("숫자가 아닙니다: " + v);
+    }
+
+
+    private void createRoom(WebSocketSession session) {
         GameRoom room = rooms.create();
         Player me = new Player(session, UUID.randomUUID().toString());
-        room.players.add(me);
+
+        synchronized (room) {
+            room.players.add(me);
+        }
 
         roomOf.put(session.getId(), room);
         playerOf.put(session.getId(), me);
@@ -50,7 +75,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
                 "roomCode", room.code, "playerToken", me.token));
     }
 
-    private void joinRoom(WebSocketSession session, String code) throws Exception {
+    private void joinRoom(WebSocketSession session, String code) {
         GameRoom room = rooms.find(code);
 
         if (room == null) {
@@ -58,24 +83,33 @@ public class GameSocketHandler extends TextWebSocketHandler {
                     "code", "no_room", "message", "그런 방이 없습니다"));
             return;
         }
-        if (room.players.size() >= 2) {
-            send(session, Map.of("type", "error",
-                    "code", "room_full", "message", "이미 두 명입니다"));
-            return;
-        }
 
         Player me = new Player(session, UUID.randomUUID().toString());
-        room.players.add(me);
-        roomOf.put(session.getId(), room);
-        playerOf.put(session.getId(), me);
 
-        send(session, Map.of("type", "room_created",
-                "roomCode", room.code, "playerToken", me.token));
+        synchronized (room) {
+            if (room.finished) {
+                send(session, Map.of("type", "error",
+                        "code", "no_room", "message", "이미 끝난 방입니다"));
+                return;
+            }
+            if (room.players.size() >= 2) {
+                send(session, Map.of("type", "error",
+                        "code", "room_full", "message", "이미 두 명입니다"));
+                return;
+            }
 
-        startGame(room);
+            room.players.add(me);
+            roomOf.put(session.getId(), room);
+            playerOf.put(session.getId(), me);
+
+            send(session, Map.of("type", "room_created",
+                    "roomCode", room.code, "playerToken", me.token));
+
+            startGame(room);
+        }
     }
 
-    private void startGame(GameRoom room) throws Exception {
+    private void startGame(GameRoom room) {
         room.hands[0] = cards.deal(6);
         room.hands[1] = cards.deal(6);
         room.round = 1;
@@ -89,22 +123,33 @@ public class GameSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private void playCard(WebSocketSession session, int index) throws Exception {
+    private void playCard(WebSocketSession session, int index) {
         GameRoom room = roomOf.get(session.getId());
-        if (room == null) return;
+        Player me = playerOf.get(session.getId());
+        if (room == null || me == null) return;
 
-        int me = room.indexOf(playerOf.get(session.getId()));
-        if (room.played[me] != null) return;
-        if (index < 0 || index >= room.hands[me].size()) return;
+        synchronized (room) {
+            if (room.finished) return;
+            if (room.players.size() < 2) return;
 
-        room.played[me] = room.hands[me].remove(index);
+            int i = room.indexOf(me);
+            if (i == -1) return;
+            if (room.hands[i] == null) return;
+            if (room.played[i] != null) return;
+            if (index < 0 || index >= room.hands[i].size()) return;
 
-        send(room.opponentOf(me).session, Map.of("type", "opponent_played"));
+            room.played[i] = room.hands[i].remove(index);
 
-        if (room.bothPlayed()) startRound(room);
+            Player opponent = room.opponentOf(i);
+            if (opponent != null) {
+                send(opponent.session, Map.of("type", "opponent_played"));
+            }
+
+            if (room.bothPlayed()) startRound(room);
+        }
     }
 
-    private void startRound(GameRoom room) throws Exception {
+    private void startRound(GameRoom room) {
         Fighter f0 = fighterOf(room.played[0]);
         Fighter f1 = fighterOf(room.played[1]);
         room.battle = new Battle(f0, room.played[0], f1, room.played[1]);
@@ -124,20 +169,32 @@ public class GameSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private void chooseMove(WebSocketSession session, int moveId) throws Exception {
+    private void chooseMove(WebSocketSession session, int moveId) {
         GameRoom room = roomOf.get(session.getId());
-        if (room == null || room.battle == null) return;
+        Player me = playerOf.get(session.getId());
+        if (room == null || me == null) return;
 
-        int me = room.indexOf(playerOf.get(session.getId()));
-        if (room.chosenMove[me] != null) return;
+        synchronized (room) {
+            if (room.finished) return;
+            if (room.battle == null) return;
+            if (room.players.size() < 2) return;
 
-        room.chosenMove[me] = moveId;
-        send(room.opponentOf(me).session, Map.of("type", "opponent_chose"));
+            int i = room.indexOf(me);
+            if (i == -1) return;
+            if (room.chosenMove[i] != null) return;
 
-        if (room.bothChose()) resolveTurn(room);
+            room.chosenMove[i] = moveId;
+
+            Player opponent = room.opponentOf(i);
+            if (opponent != null) {
+                send(opponent.session, Map.of("type", "opponent_chose"));
+            }
+
+            if (room.bothChose()) resolveTurn(room);
+        }
     }
 
-    private void resolveTurn(GameRoom room) throws Exception {
+    private void resolveTurn(GameRoom room) {
         TurnResult r = room.battle.playTurn(room.chosenMove[0], room.chosenMove[1]);
         room.clearTurn();
 
@@ -150,7 +207,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
         if (r.winner != null) endRound(room, r.winner);
     }
 
-    private void endRound(GameRoom room, String roundWinner) throws Exception {
+    private void endRound(GameRoom room, String roundWinner) {
         if ("p1".equals(roundWinner)) room.wins[0]++;
         else if ("p2".equals(roundWinner)) room.wins[1]++;
 
@@ -164,9 +221,13 @@ public class GameSocketHandler extends TextWebSocketHandler {
         if (room.round > 6) {
             String winner = room.wins[0] > room.wins[1] ? "p1"
                     : room.wins[1] > room.wins[0] ? "p2" : "draw";
+
             broadcast(room, Map.of("type", "game_end",
                     "winner", winner,
                     "wins", List.of(room.wins[0], room.wins[1])));
+
+            room.finished = true;
+            rooms.remove(room.code);
         }
     }
 
@@ -174,14 +235,18 @@ public class GameSocketHandler extends TextWebSocketHandler {
         return cards.fighterOf(card.getPokemonId());
     }
 
-    private void broadcast(GameRoom room, Map<String, Object> payload) throws Exception {
+    private void broadcast(GameRoom room, Map<String, Object> payload) {
         for (Player p : room.players) send(p.session, payload);
     }
 
-    private void send(WebSocketSession session, Map<String, Object> payload) throws Exception {
-        String text = json.writeValueAsString(payload);
-        synchronized (session) {
-            if (session.isOpen()) session.sendMessage(new TextMessage(text));
+    private void send(WebSocketSession session, Map<String, Object> payload) {
+        try {
+            String text = json.writeValueAsString(payload);
+            synchronized (session) {
+                if (session.isOpen()) session.sendMessage(new TextMessage(text));
+            }
+        } catch (Exception e) {
+            log.debug("전송 실패", e);
         }
     }
 
@@ -191,15 +256,19 @@ public class GameSocketHandler extends TextWebSocketHandler {
         Player me = playerOf.remove(session.getId());
         if (room == null || me == null) return;
 
-        int myIndex = room.players.indexOf(me);
-        if (myIndex == -1) return;
+        synchronized (room) {
+            int myIndex = room.players.indexOf(me);
+            if (myIndex != -1) {
+                room.players.remove(myIndex);
 
-        Player opponent = room.players.get(1 - myIndex);
-        try {
-            send(opponent.session, Map.of(
-                    "type", "opponent_left",
-                    "message", "상대가 나갔습니다"));
-        } catch (Exception ignored) {}
+                for (Player p : room.players) {
+                    send(p.session, Map.of(
+                            "type", "opponent_left",
+                            "message", "상대가 나갔습니다"));
+                }
+            }
+            room.finished = true;
+        }
 
         rooms.remove(room.code);
     }
