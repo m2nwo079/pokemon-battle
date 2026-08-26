@@ -126,9 +126,12 @@ public class PokemonSeeder {
 
         Map<String, Object> category = (Map<String, Object>) meta.get("category");
         String cat = category == null ? "" : (String) category.get("name");
-        if (!"damage".equals(cat)) return null;         // 순수 공격기만
+        if (!"damage".equals(cat) && !"damage-heal".equals(cat)) return null;
 
-        if (meta.get("max_turns") != null) return null; // 충전·반동 제외
+        if (meta.get("max_turns") != null) return null;
+
+        Object drainObj = meta.get("drain");
+        int drain = drainObj == null ? 0 : (int) drainObj;
 
         int id = (int) data.get("id");
         String name = koreanName(data, (String) data.get("name"));
@@ -137,7 +140,7 @@ public class PokemonSeeder {
 
         return new MoveEntity(id, name, type,
                 (int) power, (int) accuracy,
-                "physical".equals(klass), (int) pp);
+                "physical".equals(klass), (int) pp, drain);
     }
 
     // ---------- 도우미 ----------

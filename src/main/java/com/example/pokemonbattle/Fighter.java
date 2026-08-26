@@ -61,4 +61,8 @@ public class Fighter {
     public void takeDamage(int amount) {
         currentHp = Math.max(0, currentHp - amount);
     }
+
+    public void heal(int amount) {
+        currentHp = Math.min(maxHp, currentHp + amount);
+    }
 }

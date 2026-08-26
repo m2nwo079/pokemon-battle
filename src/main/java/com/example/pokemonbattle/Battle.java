@@ -53,9 +53,15 @@ public class Battle {
         int damage = BattleEngine.damage(atk, def, move, roll);
         def.takeDamage(damage);
 
+        int healed = 0;
+        if (move.getDrain() > 0) {
+            healed = Math.max(1, damage * move.getDrain() / 100);
+            atk.heal(healed);
+        }
+
         double eff = TypeChart.multiplier(move.getType(), def.getTypes());
         boolean stab = atk.hasType(move.getType());
-        r.hit(who, move, damage, eff, stab, def.getCurrentHp(), ppLeft);
+        r.hit(who, move, damage, eff, stab, def.getCurrentHp(), ppLeft, healed);
     }
 
     private Move resolveMove(Card card, int moveId) {
@@ -74,7 +80,7 @@ public class Battle {
 
     private static final Move STRUGGLE =
             new Move(-1, "struggle", "none",
-                    50, 100, true, 999);
+                    50, 100, true, 999, 0);
 
     private String byHpRatio() {
         double r1 = (double) f1.getCurrentHp() / f1.getMaxHp();

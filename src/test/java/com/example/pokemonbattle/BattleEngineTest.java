@@ -16,10 +16,10 @@ class BattleEngineTest {
             "파이리", List.of("fire"), 39, 52, 43, 60, 50, 65);
 
     private final Move waterGun = new Move(
-            55, "물대포", "water", 40, 100, false, 25);
+            55, "물대포", "water", 40, 100, false, 25, 0);
 
     private final Move ember = new Move(
-            52, "불꽃세례", "fire", 40, 100, false, 25);
+            52, "불꽃세례", "fire", 40, 100, false, 25, 0);
 
     @Test
     void 물기술은_불포켓몬에게_두배로_들어간다() {
