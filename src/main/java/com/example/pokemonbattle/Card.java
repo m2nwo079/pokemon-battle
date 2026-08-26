@@ -47,6 +47,7 @@ public class Card {
             Map<String, Object> entry = new HashMap<>();
             entry.put("moveId", m.getId());
             entry.put("name", m.getName());
+            entry.put("type", m.getType());
             entry.put("power", m.getPower());
             if (isMine) {
                 entry.put("currentPp", pp.get(m.getId()));

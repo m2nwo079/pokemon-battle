@@ -165,7 +165,9 @@ public class GameSocketHandler extends TextWebSocketHandler {
                     "myCard", room.played[i].toPayload(true),
                     "opponentCard", room.played[1 - i].toPayload(false),
                     "myHp", Map.of("current", mine.getCurrentHp(), "max", mine.getMaxHp()),
-                    "opponentHp", Map.of("current", theirs.getCurrentHp(), "max", theirs.getMaxHp())));
+                    "opponentHp", Map.of("current", theirs.getCurrentHp(), "max", theirs.getMaxHp()),
+                    "myTypes", mine.getTypes(),
+                    "opponentTypes", theirs.getTypes()));
         }
     }
 
