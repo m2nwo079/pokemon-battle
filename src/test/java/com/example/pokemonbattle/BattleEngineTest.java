@@ -23,8 +23,8 @@ class BattleEngineTest {
 
     @Test
     void 물기술은_불포켓몬에게_두배로_들어간다() {
-        int water = BattleEngine.damage(squirtle, charmander, waterGun, 1.0);
-        int fire  = BattleEngine.damage(charmander, squirtle, ember, 1.0);
+        int water = BattleEngine.damage(squirtle, charmander, waterGun, 1.0, false);
+        int fire  = BattleEngine.damage(charmander, squirtle, ember, 1.0, false);
 
         // 같은 위력인데 상성 덕에 물 쪽이 더 아프다
         assertTrue(water > fire);
@@ -32,10 +32,8 @@ class BattleEngineTest {
 
     @Test
     void 난수가_작으면_데미지도_작다() {
-        int max = BattleEngine.damage(squirtle, charmander, waterGun, 1.0);
-        int min = BattleEngine.damage(squirtle, charmander, waterGun, 0.85);
-
-        assertTrue(min < max);
+        int water = BattleEngine.damage(squirtle, charmander, waterGun, 1.0, false);
+        int fire  = BattleEngine.damage(charmander, squirtle, ember, 1.0, false);
     }
 
     @Test

@@ -49,8 +49,10 @@ public class Battle {
             return;
         }
 
+        boolean crit = ThreadLocalRandom.current().nextInt(16) == 0;   // 1/16 확률
+
         double roll = 0.85 + ThreadLocalRandom.current().nextDouble() * 0.15;
-        int damage = BattleEngine.damage(atk, def, move, roll);
+        int damage = BattleEngine.damage(atk, def, move, roll, crit);
         def.takeDamage(damage);
 
         int healed = 0;
@@ -61,7 +63,7 @@ public class Battle {
 
         double eff = TypeChart.multiplier(move.getType(), def.getTypes());
         boolean stab = atk.hasType(move.getType());
-        r.hit(who, move, damage, eff, stab, def.getCurrentHp(), ppLeft, healed);
+        r.hit(who, move, damage, eff, stab, def.getCurrentHp(), ppLeft, healed, crit);
     }
 
     private Move resolveMove(Card card, int moveId) {

@@ -9,7 +9,7 @@ public class TurnResult {
     public String winner;
 
     public void hit(String who, Move move, int damage, double effect,
-                    boolean stab, int hpLeft, int ppLeft, int healed) {
+                    boolean stab, int hpLeft, int ppLeft, int healed, boolean crit) {
         events.add(Map.ofEntries(
                 Map.entry("type", "hit"),
                 Map.entry("who", who),
@@ -21,7 +21,8 @@ public class TurnResult {
                 Map.entry("stab", stab),
                 Map.entry("hpLeft", hpLeft),
                 Map.entry("ppLeft", ppLeft),
-                Map.entry("healed", healed)));
+                Map.entry("healed", healed),
+                Map.entry("crit", crit)));
     }
 
     public void miss(String who, Move move, int ppLeft) {

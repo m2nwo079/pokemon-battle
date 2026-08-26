@@ -94,6 +94,8 @@ function describe(e, me) {
     if (e.type === "miss") return `${who} ${e.move} — 빗나갔다`;
     if (e.type === "faint") return `${e.who === me ? "내 포켓몬이" : "상대가"} 쓰러졌다`;
 
+    const crit = e.crit ? " 급소에 맞았다!" : "";
+
     const eff =
         e.effectiveness > 1 ? " 효과가 굉장했다" :
             e.effectiveness === 0 ? " 효과가 없었다" :
@@ -102,5 +104,5 @@ function describe(e, me) {
     const stab = e.stab ? " (자속)" : "";
     const heal = e.healed > 0 ? ` · ${e.healed} 회복` : "";
 
-    return `${who} ${e.move} — ${e.damage}${stab}${eff}${heal}`;
+    return `${who} ${e.move} — ${e.damage}${crit}${stab}${eff}${heal}`;
 }
