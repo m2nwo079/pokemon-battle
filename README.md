@@ -1,4 +1,4 @@
-# ⚔️ Pokémon Card Battle
+# Pokémon Card Battle
 
 ![Java](https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.1.1-6DB33F?logo=springboot&logoColor=white)
