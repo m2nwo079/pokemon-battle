@@ -34,11 +34,15 @@ export default function App() {
 
         {state.phase === "gameEnd" && (
             <div className="center">
-              <h2>
-                {state.winner === "draw"
-                    ? "무승부"
-                    : `${state.winner === state.me ? "승리" : "패배"}`}
-              </h2>
+              {state.opponentLeft ? (
+                  <h2>상대가 나갔습니다 — 부전승</h2>
+              ) : (
+                  <h2>
+                    {state.winner === "draw"
+                        ? "무승부"
+                        : state.winner === state.me ? "승리" : "패배"}
+                  </h2>
+              )}
               <p>{state.wins[0]} 대 {state.wins[1]}</p>
               <button className="primary" onClick={() => window.location.reload()}>
                 다시 하기

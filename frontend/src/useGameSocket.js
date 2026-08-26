@@ -18,6 +18,7 @@ const initial = {
     opponentHp: null,
     cardLocked: false,
     moveLocked: false,
+    opponentLeft: false,
 };
 
 function reducer(state, msg) {
@@ -84,6 +85,11 @@ function reducer(state, msg) {
 
         case "local_move_chosen":
             return { ...state, moveLocked: true };
+
+        case "opponent_left":
+            return { ...state, phase: "gameEnd",
+                winner: state.me, wins: state.wins,
+                opponentLeft: true, error: null };
 
         default:
             return state;
