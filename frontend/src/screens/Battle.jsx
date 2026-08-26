@@ -100,6 +100,7 @@ function describe(e, me) {
                 e.effectiveness < 1 ? " 효과가 별로였다" : "";
 
     const stab = e.stab ? " (자속)" : "";
+    const heal = e.healed > 0 ? ` · ${e.healed} 회복` : "";
 
-    return `${who} ${e.move} — ${e.damage}${stab}${eff}`;
+    return `${who} ${e.move} — ${e.damage}${stab}${eff}${heal}`;
 }

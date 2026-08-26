@@ -47,17 +47,17 @@ function reducer(state, msg) {
 
             for (const e of msg.events) {
                 if (e.type === "hit") {
-                    if (e.who === state.me) oppHp = { ...oppHp, current: e.hpLeft };
-                    else                    myHp  = { ...myHp,  current: e.hpLeft };
-                }
-                if ((e.type === "hit" || e.type === "miss") && e.who === state.me
-                    && e.ppLeft !== undefined && myCard) {
-                    myCard = {
-                        ...myCard,
-                        moves: myCard.moves.map((m) =>
-                            m.moveId === e.moveId ? { ...m, currentPp: e.ppLeft } : m
-                        ),
-                    };
+                    if (e.who === state.me) {
+                        oppHp = { ...oppHp, current: e.hpLeft };
+                        if (e.healed > 0 && myHp) {
+                            myHp = { ...myHp, current: Math.min(myHp.max, myHp.current + e.healed) };
+                        }
+                    } else {
+                        myHp = { ...myHp, current: e.hpLeft };
+                        if (e.healed > 0 && oppHp) {
+                            oppHp = { ...oppHp, current: Math.min(oppHp.max, oppHp.current + e.healed) };
+                        }
+                    }
                 }
             }
 
