@@ -10,11 +10,14 @@ export default function MoveBar({ moves, onChoose, disabled }) {
                     onClick={() => onChoose(m.moveId)}
                     disabled={disabled || m.currentPp === 0}
                 >
-                    <span className="move-name">{m.name}</span>
+                    <span className="move-name">
+                        {m.name}
+                        {m.type && <TypeChip type={m.type} />}
+                    </span>
                     <span className="move-meta">
-            위력 {m.power}
+                        위력 {m.power}
                         {m.currentPp !== undefined && ` · PP ${m.currentPp}`}
-          </span>
+                    </span>
                 </button>
             ))}
         </div>

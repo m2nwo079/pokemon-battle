@@ -133,7 +133,11 @@ button:disabled {
     backdrop-filter: blur(8px);
 }
 
-.hp-name { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.hp-name {
+    font-size: 15px; font-weight: 600; margin-bottom: 6px;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+}
+
 .hp-track {
     height: 8px; border-radius: 999px; overflow: hidden;
     background: rgba(255,255,255,.12);
@@ -172,7 +176,11 @@ button:disabled {
     border: 1px solid rgba(120,150,255,.25);
     color: #e8ecff;
 }
-.move-name { font-size: 16px; font-weight: 600; line-height: 1.2; }
+.move-name {
+    font-size: 16px; font-weight: 600; line-height: 1.2;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+}
+
 .move-meta { font-size: 12px; font-weight: 400; color: #9aa8d0; }
 
 /* ---------- 로그 ---------- */
@@ -188,8 +196,9 @@ button:disabled {
 /* ---------- 타입 배지 ---------- */
 
 .type-chip {
-    display: inline-block; padding: 2px 8px; border-radius: 999px;
-    color: #fff; font-size: 11px; text-transform: uppercase;
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+    color: #fff; font-size: 11px; letter-spacing: .3px;
+    white-space: nowrap;
 }
 
 @media (max-width: 640px) {

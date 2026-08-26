@@ -16,6 +16,8 @@ const initial = {
     me: "p1",
     myHp: null,
     opponentHp: null,
+    myTypes: [],
+    opponentTypes: [],
     cardLocked: false,
     moveLocked: false,
     opponentLeft: false,
@@ -38,6 +40,7 @@ function reducer(state, msg) {
                 me: msg.me,
                 myCard: msg.myCard, opponentCard: msg.opponentCard,
                 myHp: msg.myHp, opponentHp: msg.opponentHp,
+                myTypes: msg.myTypes ?? [], opponentTypes: msg.opponentTypes ?? [],
                 cardLocked: false, opponentReady: false, log: [] };
 
         case "turn_result": {

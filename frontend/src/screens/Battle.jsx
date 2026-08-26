@@ -1,11 +1,12 @@
 import BattleStage from "../three/BattleStage";
 import CardTile from "../components/CardTile";
 import MoveBar from "../components/MoveBar";
+import TypeChip from "../components/TypeChip";
 
 export default function Battle({ state, playCard, chooseMove }) {
     const { phase, hand, myCard, opponentCard, round, wins,
         log, opponentReady, me, myHp, opponentHp,
-        cardLocked, moveLocked } = state;
+        myTypes, opponentTypes, cardLocked, moveLocked } = state;
 
     return (
         <div className="battle">
@@ -21,12 +22,12 @@ export default function Battle({ state, playCard, chooseMove }) {
             <div className="hud">
                 <div className="hud-top">
                     <div className="round-chip">{round} / 6 라운드</div>
-                    {opponentCard && <HpBox card={opponentCard} hp={opponentHp} side="opp" />}
+                    {opponentCard && <HpBox card={opponentCard} hp={opponentHp} types={opponentTypes} side="opp" />}
                     <div className="score-chip">{wins[0]} : {wins[1]}</div>
                 </div>
 
                 <div className="hud-mid">
-                    {myCard && <HpBox card={myCard} hp={myHp} side="me" />}
+                    {myCard && <HpBox card={myCard} hp={myHp} types={myTypes} side="me" />}
                 </div>
 
                 <div className="hud-bottom">
@@ -63,14 +64,17 @@ export default function Battle({ state, playCard, chooseMove }) {
     );
 }
 
-function HpBox({ card, hp, side }) {
+function HpBox({ card, hp, types, side }) {
     if (!hp) return null;
     const ratio = Math.max(0, hp.current / hp.max);
     const tone = ratio > 0.5 ? "ok" : ratio > 0.2 ? "warn" : "danger";
 
     return (
         <div className={`hp-box ${side}`}>
-            <div className="hp-name">{card.name}</div>
+            <div className="hp-name">
+                {card.name}
+                {(types ?? []).map((t) => <TypeChip key={t} type={t} />)}
+            </div>
             <div className="hp-track">
                 <div className={`hp-fill ${tone}`} style={{ width: `${ratio * 100}%` }} />
             </div>
