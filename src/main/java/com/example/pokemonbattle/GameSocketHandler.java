@@ -39,6 +39,8 @@ public class GameSocketHandler extends TextWebSocketHandler {
                 case "join_room"   -> joinRoom(session, asString(msg.get("roomCode")));
                 case "play_card"   -> playCard(session, asInt(msg.get("cardIndex")));
                 case "choose_move" -> chooseMove(session, asInt(msg.get("moveId")));
+                case "rematch"     -> rematch(session);
+                case "leave"       -> leave(session);
                 default -> send(session, Map.of("type", "error",
                         "code", "unknown_type", "message", "모르는 요청입니다"));
             }
@@ -121,6 +123,40 @@ public class GameSocketHandler extends TextWebSocketHandler {
             send(room.players.get(i).session,
                     Map.of("type", "game_start", "round", 1, "myHand", hand));
         }
+    }
+
+    private void rematch(WebSocketSession session) {
+        GameRoom room = roomOf.get(session.getId());
+        Player me = playerOf.get(session.getId());
+        if (room == null || me == null) return;
+
+        synchronized (room) {
+            if (!room.finished) return;
+            if (room.players.size() < 2) return;
+
+            int i = room.indexOf(me);
+            if (i == -1) return;
+
+            room.rematchReady[i] = true;
+
+            Player opponent = room.opponentOf(i);
+            if (opponent != null) {
+                send(opponent.session, Map.of("type", "opponent_rematch"));
+            }
+
+            if (room.rematchReady[0] && room.rematchReady[1]) {
+                room.resetForRematch();
+                startGame(room);
+            }
+        }
+    }
+
+    private void leave(WebSocketSession session) {
+        // 나가기는 소켓을 닫는 것과 같게 처리한다.
+        // 세션을 닫으면 afterConnectionClosed 가 방 정리와 상대 알림을 맡는다.
+        try {
+            session.close();
+        } catch (Exception ignored) {}
     }
 
     private void playCard(WebSocketSession session, int index) {
@@ -229,7 +265,8 @@ public class GameSocketHandler extends TextWebSocketHandler {
                     "wins", List.of(room.wins[0], room.wins[1])));
 
             room.finished = true;
-            rooms.remove(room.code);
+            room.rematchReady[0] = false;
+            room.rematchReady[1] = false;
         }
     }
 

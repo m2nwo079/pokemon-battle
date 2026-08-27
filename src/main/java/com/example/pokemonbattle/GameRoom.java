@@ -19,6 +19,8 @@ public class GameRoom {
 
     public boolean finished = false;
 
+    public boolean[] rematchReady = new boolean[2];
+
     public GameRoom(String code) { this.code = code; }
 
     public int indexOf(Player p) { return players.indexOf(p); }
@@ -34,4 +36,15 @@ public class GameRoom {
 
     public void clearTurn() { chosenMove[0] = null; chosenMove[1] = null; }
     public void clearRound() { played[0] = null; played[1] = null; battle = null; clearTurn(); }
+
+    public void resetForRematch() {
+        wins = new int[2];
+        round = 0;
+        hands[0] = null;
+        hands[1] = null;
+        clearRound();
+        finished = false;
+        rematchReady[0] = false;
+        rematchReady[1] = false;
+    }
 }
