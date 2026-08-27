@@ -14,7 +14,6 @@ export default function Battle({ state, playCard, chooseMove }) {
                 myCard={myCard}
                 opponentCard={opponentCard}
                 opponentPlayed={opponentReady}
-                hitKey={log.length}
                 events={log}
                 me={me}
             />

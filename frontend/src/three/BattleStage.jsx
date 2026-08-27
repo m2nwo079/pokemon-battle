@@ -166,7 +166,7 @@ function updateEmitter(emitter, dt) {
     }
 }
 
-export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitKey, events, me }) {
+export default function BattleStage({ myCard, opponentCard, opponentPlayed, events, me }) {
     const mountRef = useRef(null)
     const sceneRef = useRef(null)
 
@@ -248,6 +248,7 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
 
             mySprite.position.y = MY_SIDE.y + Math.sin(t * 1.6) * 0.09
             oppSprite.position.y = OPP_SIDE.y + Math.sin(t * 1.6 + 1.7) * 0.09
+
 
             for (let i = shake.length - 1; i >= 0; i--) {
                 const s = shake[i]
@@ -342,12 +343,24 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
         return () => { cancelled = true }
     }, [myCard?.pokemonId, opponentCard?.pokemonId])
 
+    const playedCountRef = useRef(0)
+
     useEffect(() => {
         const ctx = sceneRef.current
-        if (!ctx || !hitKey || !events?.length) return
+        if (!ctx || !events?.length) return
+
+        if (events.length < playedCountRef.current) {
+            playedCountRef.current = 0
+        }
+
+        const alreadyPlayed = playedCountRef.current
+        const fresh = events.slice(alreadyPlayed)
+        playedCountRef.current = events.length
+
+        if (fresh.length === 0) return
 
         const timers = []
-        events.forEach((event, index) => {
+        fresh.forEach((event, index) => {
             if (event.type === 'faint') return          // 기절은 이펙트 없음
 
             const attackerIsMe = event.who === me
@@ -372,7 +385,7 @@ export default function BattleStage({ myCard, opponentCard, opponentPlayed, hitK
         })
 
         return () => timers.forEach(clearTimeout)
-    }, [hitKey, events, me])
+    }, [events, me])
 
     useEffect(() => {
         const ctx = sceneRef.current
