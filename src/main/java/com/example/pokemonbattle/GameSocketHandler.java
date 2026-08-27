@@ -194,16 +194,15 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
         for (int i = 0; i < 2; i++) {
             Fighter mine = fs[i], theirs = fs[1 - i];
-            send(room.players.get(i).session, Map.of(
-                    "type", "round_start",
-                    "round", room.round,
-                    "me", i == 0 ? "p1" : "p2",
-                    "myCard", room.played[i].toPayload(true),
-                    "opponentCard", room.played[1 - i].toPayload(false),
-                    "myHp", Map.of("current", mine.getCurrentHp(), "max", mine.getMaxHp()),
-                    "opponentHp", Map.of("current", theirs.getCurrentHp(), "max", theirs.getMaxHp()),
-                    "myTypes", mine.getTypes(),
-                    "opponentTypes", theirs.getTypes()));
+            send(room.players.get(i).session, new RoundStart(
+                    room.round,
+                    i == 0 ? "p1" : "p2",
+                    room.played[i].toPayload(true),
+                    room.played[1 - i].toPayload(false),
+                    HpState.of(mine),
+                    HpState.of(theirs),
+                    mine.getTypes(),
+                    theirs.getTypes()));
         }
     }
 
@@ -249,9 +248,8 @@ public class GameSocketHandler extends TextWebSocketHandler {
         if ("p1".equals(roundWinner)) room.wins[0]++;
         else if ("p2".equals(roundWinner)) room.wins[1]++;
 
-        broadcast(room, Map.of("type", "round_end",
-                "roundWinner", roundWinner,
-                "wins", List.of(room.wins[0], room.wins[1])));
+        broadcast(room, new RoundEnd(roundWinner,
+                List.of(room.wins[0], room.wins[1])));
 
         room.clearRound();
         room.round++;
@@ -260,9 +258,8 @@ public class GameSocketHandler extends TextWebSocketHandler {
             String winner = room.wins[0] > room.wins[1] ? "p1"
                     : room.wins[1] > room.wins[0] ? "p2" : "draw";
 
-            broadcast(room, Map.of("type", "game_end",
-                    "winner", winner,
-                    "wins", List.of(room.wins[0], room.wins[1])));
+            broadcast(room, new GameEnd(winner,
+                    List.of(room.wins[0], room.wins[1])));
 
             room.finished = true;
             room.rematchReady[0] = false;
@@ -274,11 +271,11 @@ public class GameSocketHandler extends TextWebSocketHandler {
         return cards.fighterOf(card.getPokemonId());
     }
 
-    private void broadcast(GameRoom room, Map<String, Object> payload) {
+    private void broadcast(GameRoom room, Object payload) {
         for (Player p : room.players) send(p.session, payload);
     }
 
-    private void send(WebSocketSession session, Map<String, Object> payload) {
+    private void send(WebSocketSession session, Object payload) {
         try {
             String text = json.writeValueAsString(payload);
             synchronized (session) {
