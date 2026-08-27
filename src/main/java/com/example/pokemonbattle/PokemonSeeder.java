@@ -1,5 +1,7 @@
 package com.example.pokemonbattle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -7,6 +9,8 @@ import java.util.*;
 
 @Component
 public class PokemonSeeder {
+
+    private static final Logger log = LoggerFactory.getLogger(PokemonSeeder.class);
 
     private static final String API = "https://pokeapi.co/api/v2";
 
@@ -33,12 +37,12 @@ public class PokemonSeeder {
     }
 
     public void run() {
-        System.out.println("=== 시딩 시작 ===");
+        log.info("시딩 시작");
 
         pokemonMoveRepository.deleteAllInBatch();
         moveRepository.deleteAllInBatch();
         pokemonRepository.deleteAllInBatch();
-        System.out.println("기존 데이터 삭제 완료");
+        log.info("기존 데이터 삭제 완료");
         Map<Integer, List<String>> learnable = new HashMap<>();
         Set<String> allMoveNames = new HashSet<>();
 
@@ -55,11 +59,11 @@ public class PokemonSeeder {
             learnable.put(id, names);
             allMoveNames.addAll(names);
 
-            System.out.println("포켓몬 " + id + " 저장");
+            log.info("포켓몬 {} 저장", id);
             sleep(100);
         }
 
-        System.out.println("중복 제거 후 기술 " + allMoveNames.size() + "개");
+        log.info("중복 제거 후 기술 {}개", allMoveNames.size());
 
         Map<String, Integer> savedMoveIds = new HashMap<>();
 
@@ -75,7 +79,7 @@ public class PokemonSeeder {
             savedMoveIds.put(name, move.getId());
 
             saved++;
-            if (saved % 50 == 0) System.out.println("기술 " + saved + "개 저장");
+            if (saved % 50 == 0) log.info("기술 {}개 저장", saved);
             sleep(100);
         }
 
@@ -90,9 +94,8 @@ public class PokemonSeeder {
         }
         pokemonMoveRepository.saveAll(links);
 
-        System.out.println("=== 끝. 포켓몬 " + pokemonRepository.count()
-                + "마리, 기술 " + moveRepository.count()
-                + "개, 관계 " + pokemonMoveRepository.count() + "줄 ===");
+        log.info("시딩 완료: 포켓몬 {}마리, 기술 {}개, 관계 {}줄",
+                pokemonRepository.count(), moveRepository.count(), pokemonMoveRepository.count());
     }
 
     @SuppressWarnings("unchecked")
@@ -150,7 +153,7 @@ public class PokemonSeeder {
         try {
             return http.get().uri(url).retrieve().body(Map.class);
         } catch (Exception e) {
-            System.out.println("실패: " + url + " (" + e.getMessage() + ")");
+            log.warn("요청 실패: {} ({})", url, e.getMessage());
             return null;
         }
     }

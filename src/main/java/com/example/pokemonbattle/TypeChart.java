@@ -1,5 +1,7 @@
 package com.example.pokemonbattle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import tools.jackson.databind.ObjectMapper;
 
@@ -9,6 +11,8 @@ import java.util.Map;
 
 public class TypeChart {
 
+    private static final Logger log = LoggerFactory.getLogger(TypeChart.class);
+
     private static final Map<String, Map<String, Double>> CHART = load();
 
     @SuppressWarnings("unchecked")
@@ -16,7 +20,7 @@ public class TypeChart {
         try (InputStream in = new ClassPathResource("typechart.json").getInputStream()) {
             return new ObjectMapper().readValue(in, Map.class);
         } catch (Exception e) {
-            System.err.println("typechart.json 로드 실패: " + e.getMessage());
+            log.error("typechart.json 로드 실패", e);
             return Map.of();
         }
     }

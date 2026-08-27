@@ -1,5 +1,7 @@
 package com.example.pokemonbattle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -8,6 +10,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class CardFactory {
+
+    private static final Logger log = LoggerFactory.getLogger(CardFactory.class);
 
     private final PokemonRepository pokemonRepository;
     private final MoveRepository moveRepository;
@@ -42,9 +46,9 @@ public class CardFactory {
                         PokemonMoveEntity::getPokemonId,
                         Collectors.mapping(PokemonMoveEntity::getMoveId, Collectors.toList())));
 
-        System.out.println("카드 풀 준비 완료: 포켓몬 " + allPokemon.size()
-                + ", 기술 " + moveById.size()
-                + ", 관계 " + learnable.values().stream().mapToInt(List::size).sum());
+        log.info("카드 풀 준비 완료: 포켓몬 {}, 기술 {}, 관계 {}",
+                allPokemon.size(), moveById.size(),
+                learnable.values().stream().mapToInt(List::size).sum());
     }
 
     public List<Card> deal(int count) {
