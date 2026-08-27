@@ -201,6 +201,24 @@ button:disabled {
     white-space: nowrap;
 }
 
+/* ---------- 게임 종료 버튼 ---------- */
+
+.end-actions {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.end-actions .primary,
+.end-actions .ghost {
+    min-width: 200px;
+}
+.ghost {
+    background: transparent;
+    border: 1px solid rgba(120,150,255,.4);
+    color: #c8d2f0;
+    padding: 10px 16px; border-radius: 8px; cursor: pointer;
+}
+.ghost:hover { border-color: #6b8bff; }
+.rematch-hint { margin: 0; font-size: 13px; color: #8b96b8; }
+
 @media (max-width: 640px) {
     /* 로비 */
     .lobby { padding-top: 40px; }

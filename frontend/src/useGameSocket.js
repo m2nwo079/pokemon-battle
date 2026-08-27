@@ -21,6 +21,8 @@ const initial = {
     cardLocked: false,
     moveLocked: false,
     opponentLeft: false,
+    opponentWantsRematch: false,
+    rematchPending: false,
 };
 
 function reducer(state, msg) {
@@ -29,7 +31,9 @@ function reducer(state, msg) {
             return { ...state, phase: "waiting", roomCode: msg.roomCode, error: null };
 
         case "game_start":
-            return { ...state, phase: "picking", hand: msg.myHand, round: msg.round, log: [] };
+            return { ...state, phase: "picking", hand: msg.myHand, round: msg.round, log: [],
+                winner: null, wins: [0, 0], opponentLeft: false,
+                opponentWantsRematch: false, rematchPending: false };
 
         case "opponent_played":
         case "opponent_chose":
@@ -89,6 +93,11 @@ function reducer(state, msg) {
         case "local_move_chosen":
             return { ...state, moveLocked: true };
 
+        case "local_rematch":
+            return { ...state, rematchPending: true };
+        case "opponent_rematch":
+            return { ...state, opponentWantsRematch: true };
+
         case "opponent_left":
             return { ...state, phase: "gameEnd",
                 winner: state.me, wins: state.wins,
@@ -129,6 +138,14 @@ export function useGameSocket() {
             if (state.moveLocked) return;
             send({ type: "choose_move", moveId });
             dispatch({ type: "local_move_chosen" });
+        },
+        rematch: () => {
+            send({ type: "rematch" });
+            dispatch({ type: "local_rematch" });
+        },
+        leave: () => {
+            send({ type: "leave" });
+            window.location.reload();
         },
     };
 }
