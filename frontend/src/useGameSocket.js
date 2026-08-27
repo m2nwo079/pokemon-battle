@@ -67,8 +67,6 @@ function reducer(state, msg) {
                     }
                 }
 
-                // 내가 쓴 기술의 PP를 서버가 보낸 값으로 갱신한다.
-                // hit·miss 모두 moveId 와 ppLeft 를 담고 있다.
                 if (e.who === state.me && e.moveId !== undefined && e.ppLeft !== undefined && myCard) {
                     myCard = {
                         ...myCard,
@@ -111,7 +109,7 @@ function reducer(state, msg) {
 
         case "opponent_left":
             return { ...state, phase: "gameEnd",
-                winner: state.me, wins: state.wins,
+                winner: null, wins: state.wins,
                 opponentLeft: true, error: null };
 
         default:

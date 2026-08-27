@@ -35,7 +35,7 @@ export default function App() {
         {state.phase === "gameEnd" && (
             <div className="center">
               {state.opponentLeft ? (
-                  <h2>상대가 나갔습니다 — 부전승</h2>
+                  <h2>상대가 나갔습니다</h2>
               ) : (
                   <h2>
                     {state.winner === "draw"
