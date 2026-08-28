@@ -112,6 +112,31 @@ class BattleEngineTest {
         assertNotNull(r.winner);
     }
 
+    @Test
+    void 발버둥은_시전자에게_반동_데미지를_준다() {
+        Move onePp = new Move(1, "몸통박치기", "normal", 40, 100, true, 1, 0, "none", 0);
+        Move noDamage = new Move(2, "울음소리", "normal", 0, 100, false, 30, 0, "none", 0);
+
+        Fighter attacker = new Fighter("A", List.of("normal"), 200, 80, 50, 50, 50, 99);
+        Fighter dummy    = new Fighter("B", List.of("normal"), 200, 50, 10, 50, 50, 1);
+
+        Card ca = new Card(1, "A", List.of(onePp));
+        Card cb = new Card(2, "B", List.of(noDamage));
+
+        Battle b = new Battle(attacker, ca, dummy, cb,
+                new ScriptedRandom().ints(0, 1, 1, 0, 1, 1).doubles(0.5, 0.5));
+
+        b.playTurn(onePp.getId(), noDamage.getId());
+        int hpBeforeStruggle = attacker.getCurrentHp();
+
+        b.playTurn(onePp.getId(), noDamage.getId());
+        int hpAfterStruggle = attacker.getCurrentHp();
+
+        int expectedRecoil = attacker.getMaxHp() / 4;
+        assertEquals(expectedRecoil, hpBeforeStruggle - hpAfterStruggle,
+                "발버둥 반동은 시전자 최대 HP의 1/4이어야 한다");
+    }
+
     static class ScriptedRandom implements RandomSource {
         private final Deque<Integer> intQueue = new ArrayDeque<>();
         private final Deque<Double> doubleQueue = new ArrayDeque<>();

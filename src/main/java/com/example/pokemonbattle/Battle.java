@@ -95,6 +95,10 @@ public class Battle {
                 atk.heal(healed);
             }
 
+            if (move.getId() == STRUGGLE.getId()) {
+                atk.takeDamage(atk.getMaxHp() / 4);
+            }
+
             eff = TypeChart.multiplier(move.getType(), def.getTypes());
             stab = atk.hasType(move.getType());
             r.hit(who, move, damage, eff, stab, def.getCurrentHp(), ppLeft, healed, crit, atk.getCurrentHp());
