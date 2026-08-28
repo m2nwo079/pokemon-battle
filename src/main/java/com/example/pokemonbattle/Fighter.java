@@ -9,6 +9,8 @@ public class Fighter {
     private int currentHp;
     private final int attack, defense, spAttack, spDefense, speed;
 
+    private String status = "none";
+
     public Fighter(String name, List<String> types, int baseHp, int baseAtk,
                    int baseDef, int baseSpAtk, int baseSpDef, int baseSpe) {
         this.name = name;
@@ -65,4 +67,35 @@ public class Fighter {
     public void heal(int amount) {
         currentHp = Math.min(maxHp, currentHp + amount);
     }
+
+    public String getStatus() { return status; }
+
+    public boolean hasStatus() { return !"none".equals(status); }
+
+    public boolean applyStatus(String newStatus) {
+        if (hasStatus()) return false;
+        if (isImmuneTo(newStatus)) return false;
+        this.status = newStatus;
+        return true;
+    }
+
+    private boolean isImmuneTo(String s) {
+        return switch (s) {
+            case "burn" -> types.contains("fire");
+            case "paralysis" -> types.contains("electric");
+            case "poison" -> types.contains("poison") || types.contains("steel");
+            default -> true;
+        };
+    }
+
+    public int tickStatusDamage() {
+        int dmg = switch (status) {
+            case "poison" -> Math.max(1, maxHp / 8);
+            case "burn" -> Math.max(1, maxHp / 16);
+            default -> 0;
+        };
+        if (dmg > 0) takeDamage(dmg);
+        return dmg;
+    }
+
 }

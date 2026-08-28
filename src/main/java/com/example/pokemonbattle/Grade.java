@@ -1,7 +1,7 @@
 package com.example.pokemonbattle;
 
 public enum Grade {
-    S(12), A(33), B(33), C(22);   // 뽑힐 확률(%)
+    S(12), A(33), B(33), C(22);
 
     public final int weight;
 

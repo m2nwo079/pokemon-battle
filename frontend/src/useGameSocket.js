@@ -18,6 +18,8 @@ const initial = {
     opponentHp: null,
     myTypes: [],
     opponentTypes: [],
+    myStatus: "none",
+    opponentStatus: "none",
     cardLocked: false,
     moveLocked: false,
     opponentLeft: false,
@@ -45,12 +47,15 @@ function reducer(state, msg) {
                 myCard: msg.myCard, opponentCard: msg.opponentCard,
                 myHp: msg.myHp, opponentHp: msg.opponentHp,
                 myTypes: msg.myTypes ?? [], opponentTypes: msg.opponentTypes ?? [],
+                myStatus: "none", opponentStatus: "none",
                 cardLocked: false, opponentReady: false, log: [] };
 
         case "turn_result": {
             let myHp = state.myHp;
             let oppHp = state.opponentHp;
             let myCard = state.myCard;
+            let myStatus = state.myStatus;
+            let oppStatus = state.opponentStatus;
 
             for (const e of msg.events) {
                 if (e.type === "hit") {
@@ -67,6 +72,16 @@ function reducer(state, msg) {
                     }
                 }
 
+                if (e.type === "status_inflicted") {
+                    if (e.who === state.me) myStatus = e.status;
+                    else oppStatus = e.status;
+                }
+
+                if (e.type === "status_damage") {
+                    if (e.who === state.me) myHp = { ...myHp, current: e.hpLeft };
+                    else oppHp = { ...oppHp, current: e.hpLeft };
+                }
+
                 if (e.who === state.me && e.moveId !== undefined && e.ppLeft !== undefined && myCard) {
                     myCard = {
                         ...myCard,
@@ -79,6 +94,7 @@ function reducer(state, msg) {
 
             return { ...state, opponentReady: false, moveLocked: false,
                 myHp, opponentHp: oppHp, myCard,
+                myStatus, opponentStatus: oppStatus,
                 log: [...state.log, ...msg.events] };
         }
 

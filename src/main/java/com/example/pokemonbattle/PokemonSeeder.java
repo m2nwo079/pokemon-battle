@@ -117,9 +117,6 @@ public class PokemonSeeder {
 
     @SuppressWarnings("unchecked")
     private MoveEntity toMove(Map<String, Object> data) {
-        Object power = data.get("power");
-        if (power == null) return null;
-
         Object accuracy = data.get("accuracy");
         Object pp = data.get("pp");
         if (accuracy == null || pp == null) return null;
@@ -127,14 +124,33 @@ public class PokemonSeeder {
         Map<String, Object> meta = (Map<String, Object>) data.get("meta");
         if (meta == null) return null;
 
+        // 여러 턴 묶는 기술(잠듦류 등)은 지금 범위 밖
+        if (meta.get("max_turns") != null) return null;
+
+        // 상태이상 정보 추출. 우리가 지원하는 셋만 남기고 나머지는 none 으로 정규화
+        Map<String, Object> ailmentMap = (Map<String, Object>) meta.get("ailment");
+        String ailment = ailmentMap == null ? "none" : (String) ailmentMap.get("name");
+        if (!ailment.equals("burn") && !ailment.equals("poison")
+                && !ailment.equals("paralysis")) {
+            ailment = "none";
+        }
+
+        // 카테고리 필터: 공격기(damage/damage-heal)는 그대로 받고,
+        // 그 외에는 우리가 지원하는 상태이상을 거는 변화기만 받는다
         Map<String, Object> category = (Map<String, Object>) meta.get("category");
         String cat = category == null ? "" : (String) category.get("name");
-        if (!"damage".equals(cat) && !"damage-heal".equals(cat)) return null;
-
-        if (meta.get("max_turns") != null) return null;
+        boolean isDamage = "damage".equals(cat) || "damage-heal".equals(cat);
+        if (!isDamage && ailment.equals("none")) return null;
 
         Object drainObj = meta.get("drain");
         int drain = drainObj == null ? 0 : (int) drainObj;
+
+        // 위력: 공격기는 그대로, 위력 없는 변화기는 0
+        Object powerObj = data.get("power");
+        int power = powerObj == null ? 0 : (int) powerObj;
+
+        int ailmentChance = meta.get("ailment_chance") == null
+                ? 0 : (int) meta.get("ailment_chance");
 
         int id = (int) data.get("id");
         String name = koreanName(data, (String) data.get("name"));
@@ -142,8 +158,9 @@ public class PokemonSeeder {
         String klass = (String) ((Map<String, Object>) data.get("damage_class")).get("name");
 
         return new MoveEntity(id, name, type,
-                (int) power, (int) accuracy,
-                "physical".equals(klass), (int) pp, drain);
+                power, (int) accuracy,
+                "physical".equals(klass), (int) pp, drain,
+                ailment, ailmentChance);
     }
 
     // ---------- 도우미 ----------

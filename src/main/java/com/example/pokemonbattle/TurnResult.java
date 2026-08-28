@@ -37,4 +37,26 @@ public class TurnResult {
     public void faint(String who) {
         events.add(Map.of("type", "faint", "who", who));
     }
+
+    public void statusInflicted(String who, String status) {
+        events.add(Map.of(
+                "type", "status_inflicted",
+                "who", who,
+                "status", status));
+    }
+
+    public void statusDamage(String who, String status, int damage, int hpLeft) {
+        events.add(Map.of(
+                "type", "status_damage",
+                "who", who,
+                "status", status,
+                "damage", damage,
+                "hpLeft", hpLeft));
+    }
+
+    public void paralyzed(String who) {
+        events.add(Map.of(
+                "type", "paralyzed",
+                "who", who));
+    }
 }

@@ -22,7 +22,9 @@ public class Battle {
         Move m1 = resolveMove(c1, move1Id);
         Move m2 = resolveMove(c2, move2Id);
 
-        boolean p1First = f1.getSpeed() >= f2.getSpeed();
+        int spd1 = f1.getStatus().equals("paralysis") ? f1.getSpeed() / 4 : f1.getSpeed();
+        int spd2 = f2.getStatus().equals("paralysis") ? f2.getSpeed() / 4 : f2.getSpeed();
+        boolean p1First = spd1 >= spd2;
 
         if (p1First) {
             attack("p1", f1, c1, m1, f2, r);
@@ -32,6 +34,11 @@ public class Battle {
             if (!f1.isFainted()) attack("p1", f1, c1, m1, f2, r);
         }
 
+        if (!f1.isFainted() && !f2.isFainted()) {
+            tickStatus("p1", f1, r);
+            if (!f1.isFainted()) tickStatus("p2", f2, r);
+        }
+
         if (f2.isFainted()) { r.faint("p2"); r.winner = "p1"; }
         else if (f1.isFainted()) { r.faint("p1"); r.winner = "p2"; }
         else if (turn >= MAX_TURNS) r.winner = byHpRatio();
@@ -39,8 +46,21 @@ public class Battle {
         return r;
     }
 
+    private void tickStatus(String who, Fighter f, TurnResult r) {
+        int dmg = f.tickStatusDamage();
+        if (dmg > 0) {
+            r.statusDamage(who, f.getStatus(), dmg, f.getCurrentHp());
+        }
+    }
+
     private void attack(String who, Fighter atk, Card card, Move move,
                         Fighter def, TurnResult r) {
+        if (atk.getStatus().equals("paralysis")
+                && ThreadLocalRandom.current().nextInt(100) < 25) {
+            r.paralyzed(who);
+            return;
+        }
+
         card.usePp(move.getId());
         int ppLeft = card.ppLeft(move.getId());
 
@@ -49,21 +69,43 @@ public class Battle {
             return;
         }
 
-        boolean crit = ThreadLocalRandom.current().nextInt(16) == 0;   // 1/16 확률
-
-        double roll = 0.85 + ThreadLocalRandom.current().nextDouble() * 0.15;
-        int damage = BattleEngine.damage(atk, def, move, roll, crit);
-        def.takeDamage(damage);
-
+        int damage = 0;
         int healed = 0;
-        if (move.getDrain() > 0) {
-            healed = Math.max(1, damage * move.getDrain() / 100);
-            atk.heal(healed);
+        double eff = 1.0;
+        boolean crit = false;
+        boolean stab = false;
+
+        if (move.getPower() > 0) {
+            crit = ThreadLocalRandom.current().nextInt(16) == 0;
+            double roll = 0.85 + ThreadLocalRandom.current().nextDouble() * 0.15;
+            damage = BattleEngine.damage(atk, def, move, roll, crit);
+
+            if (atk.getStatus().equals("burn") && move.isPhysical()) {
+                damage = Math.max(1, damage / 2);
+            }
+
+            def.takeDamage(damage);
+
+            if (move.getDrain() > 0) {
+                healed = Math.max(1, damage * move.getDrain() / 100);
+                atk.heal(healed);
+            }
+
+            eff = TypeChart.multiplier(move.getType(), def.getTypes());
+            stab = atk.hasType(move.getType());
+            r.hit(who, move, damage, eff, stab, def.getCurrentHp(), ppLeft, healed, crit);
         }
 
-        double eff = TypeChart.multiplier(move.getType(), def.getTypes());
-        boolean stab = atk.hasType(move.getType());
-        r.hit(who, move, damage, eff, stab, def.getCurrentHp(), ppLeft, healed, crit);
+        if (!def.isFainted() && !move.getAilment().equals("none")) {
+            int chance = move.getAilmentChance() > 0 ? move.getAilmentChance() : 100;
+            if (ThreadLocalRandom.current().nextInt(100) < chance) {
+                boolean applied = def.applyStatus(move.getAilment());
+                if (applied) {
+                    String defWho = who.equals("p1") ? "p2" : "p1";
+                    r.statusInflicted(defWho, move.getAilment());
+                }
+            }
+        }
     }
 
     private Move resolveMove(Card card, int moveId) {
@@ -82,7 +124,7 @@ public class Battle {
 
     private static final Move STRUGGLE =
             new Move(-1, "struggle", "none",
-                    50, 100, true, 999, 0);
+                    50, 100, true, 999, 0, "none", 0);
 
     private String byHpRatio() {
         double r1 = (double) f1.getCurrentHp() / f1.getMaxHp();

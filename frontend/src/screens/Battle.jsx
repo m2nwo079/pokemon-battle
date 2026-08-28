@@ -6,7 +6,8 @@ import TypeChip from "../components/TypeChip";
 export default function Battle({ state, playCard, chooseMove }) {
     const { phase, hand, myCard, opponentCard, round, wins,
         log, opponentReady, me, myHp, opponentHp,
-        myTypes, opponentTypes, cardLocked, moveLocked } = state;
+        myTypes, opponentTypes, myStatus, opponentStatus,
+        cardLocked, moveLocked } = state;
 
     return (
         <div className="battle">
@@ -21,12 +22,12 @@ export default function Battle({ state, playCard, chooseMove }) {
             <div className="hud">
                 <div className="hud-top">
                     <div className="round-chip">{round} / 6 라운드</div>
-                    {opponentCard && <HpBox card={opponentCard} hp={opponentHp} types={opponentTypes} side="opp" />}
+                    {opponentCard && <HpBox card={opponentCard} hp={opponentHp} types={opponentTypes} status={opponentStatus} side="opp" />}
                     <div className="score-chip">{wins[0]} : {wins[1]}</div>
                 </div>
 
                 <div className="hud-mid">
-                    {myCard && <HpBox card={myCard} hp={myHp} types={myTypes} side="me" />}
+                    {myCard && <HpBox card={myCard} hp={myHp} types={myTypes} status={myStatus} side="me" />}
                 </div>
 
                 <div className="hud-bottom">
@@ -63,7 +64,7 @@ export default function Battle({ state, playCard, chooseMove }) {
     );
 }
 
-function HpBox({ card, hp, types, side }) {
+function HpBox({ card, hp, types, status, side }) {
     if (!hp) return null;
     const ratio = Math.max(0, hp.current / hp.max);
     const tone = ratio > 0.5 ? "ok" : ratio > 0.2 ? "warn" : "danger";
@@ -73,6 +74,7 @@ function HpBox({ card, hp, types, side }) {
             <div className="hp-name">
                 {card.name}
                 {(types ?? []).map((t) => <TypeChip key={t} type={t} />)}
+                {status && status !== "none" && <StatusChip status={status} />}
             </div>
             <div className="hp-track">
                 <div className={`hp-fill ${tone}`} style={{ width: `${ratio * 100}%` }} />
@@ -80,6 +82,11 @@ function HpBox({ card, hp, types, side }) {
             <div className="hp-num">{hp.current} / {hp.max}</div>
         </div>
     );
+}
+
+function StatusChip({ status }) {
+    const label = { burn: "화상", poison: "독", paralysis: "마비" }[status] ?? status;
+    return <span className={`status-chip ${status}`}>{label}</span>;
 }
 
 function BattleLog({ events, me }) {
@@ -93,9 +100,13 @@ function BattleLog({ events, me }) {
 
 function describe(e, me) {
     const who = e.who === me ? "내" : "상대";
+    const label = { burn: "화상", poison: "독", paralysis: "마비" };
 
     if (e.type === "miss") return `${who} ${e.move} — 빗나갔다`;
     if (e.type === "faint") return `${e.who === me ? "내 포켓몬이" : "상대가"} 쓰러졌다`;
+    if (e.type === "status_inflicted") return `${who} 포켓몬이 ${label[e.status] ?? e.status} 상태가 됐다`;
+    if (e.type === "status_damage") return `${who} 포켓몬이 ${label[e.status] ?? e.status}(으)로 ${e.damage} 데미지`;
+    if (e.type === "paralyzed") return `${who} 포켓몬은 몸이 저려서 움직일 수 없었다`;
 
     const crit = e.crit ? " 급소에 맞았다!" : "";
 

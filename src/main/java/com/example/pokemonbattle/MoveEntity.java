@@ -17,10 +17,14 @@ public class MoveEntity {
     private int maxPp;
     private int drain;
 
+    private String ailment;
+    private int ailmentChance;
+
     protected MoveEntity() {}
 
     public MoveEntity(int id, String name, String type, int power,
-                      int accuracy, boolean physical, int maxPp, int drain) {
+                      int accuracy, boolean physical, int maxPp, int drain,
+                      String ailment, int ailmentChance) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -29,10 +33,13 @@ public class MoveEntity {
         this.physical = physical;
         this.maxPp = maxPp;
         this.drain = drain;
+        this.ailment = ailment;
+        this.ailmentChance = ailmentChance;
     }
 
     public Move toMove() {
-        return new Move(id, name, type, power, accuracy, physical, maxPp, drain);
+        return new Move(id, name, type, power, accuracy, physical, maxPp, drain,
+                ailment, ailmentChance);
     }
 
     public int getId() { return id; }
@@ -43,4 +50,6 @@ public class MoveEntity {
     public boolean isPhysical() { return physical; }
     public int getMaxPp() { return maxPp; }
     public int getDrain() { return drain; }
+    public String getAilment() { return ailment; }
+    public int getAilmentChance() { return ailmentChance; }
 }
