@@ -29,7 +29,16 @@ export default function App() {
         )}
 
         {inBattle && (
-            <Battle state={state} playCard={playCard} chooseMove={chooseMove} />
+            <>
+              <Battle state={state} playCard={playCard} chooseMove={chooseMove} />
+              {state.phase === "roundEnd" && (
+                  <div className="round-result-overlay">
+                    <div className={`round-result ${state.lastRoundWinner === state.me ? "win" : "lose"}`}>
+                      {state.lastRoundWinner === state.me ? "WIN" : "LOSE"}
+                    </div>
+                  </div>
+              )}
+            </>
         )}
 
         {state.phase === "gameEnd" && (

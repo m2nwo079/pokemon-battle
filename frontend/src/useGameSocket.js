@@ -25,6 +25,7 @@ const initial = {
     opponentLeft: false,
     opponentWantsRematch: false,
     rematchPending: false,
+    lastRoundWinner: null,
 };
 
 function reducer(state, msg) {
@@ -99,11 +100,15 @@ function reducer(state, msg) {
         }
 
         case "round_end":
-            return { ...state, phase: "picking", wins: msg.wins,
+            return { ...state, phase: "roundEnd", wins: msg.wins,
+                lastRoundWinner: msg.roundWinner,
                 myCard: null, opponentCard: null,
                 myHp: null, opponentHp: null,
                 round: state.round + 1,
                 cardLocked: false, opponentReady: false, log: [] };
+
+        case "advance_to_picking":
+            return { ...state, phase: "picking" };
 
         case "game_end":
             return { ...state, phase: "gameEnd", winner: msg.winner, wins: msg.wins };
@@ -143,6 +148,12 @@ export function useGameSocket() {
         ws.current = socket;
         return () => socket.close();
     }, []);
+
+    useEffect(() => {
+        if (state.phase !== "roundEnd") return;
+        const t = setTimeout(() => dispatch({ type: "advance_to_picking" }), 2000);
+        return () => clearTimeout(t);
+    }, [state.phase]);
 
     const send = (payload) => {
         if (ws.current?.readyState === WebSocket.OPEN) {
