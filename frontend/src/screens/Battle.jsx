@@ -107,6 +107,7 @@ function describe(e, me) {
     if (e.type === "status_inflicted") return `${who} 포켓몬이 ${label[e.status] ?? e.status} 상태가 됐다`;
     if (e.type === "status_damage") return `${who} 포켓몬이 ${label[e.status] ?? e.status}(으)로 ${e.damage} 데미지`;
     if (e.type === "paralyzed") return `${who} 포켓몬은 몸이 저려서 움직일 수 없었다`;
+    if (e.type === "hit" && e.damage === 0) return `${who} ${e.move}`;
 
     const crit = e.crit ? " 급소에 맞았다!" : "";
 

@@ -94,6 +94,8 @@ public class Battle {
             eff = TypeChart.multiplier(move.getType(), def.getTypes());
             stab = atk.hasType(move.getType());
             r.hit(who, move, damage, eff, stab, def.getCurrentHp(), ppLeft, healed, crit);
+        } else {
+            r.hit(who, move, 0, 1.0, false, def.getCurrentHp(), ppLeft, 0, false);
         }
 
         if (!def.isFainted() && !move.getAilment().equals("none")) {
