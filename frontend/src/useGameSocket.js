@@ -2,7 +2,7 @@ import { useEffect, useRef, useReducer } from "react";
 import { wsUrl } from "./api";
 
 const initial = {
-    phase: "lobby",      // lobby | waiting | picking | battle | roundEnd | gameEnd
+    phase: "lobby",
     roomCode: null,
     hand: [],
     myCard: null,
@@ -63,12 +63,12 @@ function reducer(state, msg) {
                     if (e.who === state.me) {
                         oppHp = { ...oppHp, current: e.hpLeft };
                         if (e.healed > 0 && myHp) {
-                            myHp = { ...myHp, current: Math.min(myHp.max, myHp.current + e.healed) };
+                            myHp = { ...myHp, current: e.attackerHp };
                         }
                     } else {
                         myHp = { ...myHp, current: e.hpLeft };
                         if (e.healed > 0 && oppHp) {
-                            oppHp = { ...oppHp, current: Math.min(oppHp.max, oppHp.current + e.healed) };
+                            oppHp = { ...oppHp, current: e.attackerHp };
                         }
                     }
                 }

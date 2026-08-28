@@ -9,12 +9,10 @@ public class Battle {
     private final RandomSource rng;
     private int turn = 0;
 
-    /** 실제 게임용 생성자. 진짜 난수를 쓴다. */
     public Battle(Fighter f1, Card c1, Fighter f2, Card c2) {
         this(f1, c1, f2, c2, new ThreadLocalRandomSource());
     }
 
-    /** 테스트용 생성자. 정해진 난수를 주입해 전투를 결정론적으로 검증할 수 있다. */
     public Battle(Fighter f1, Card c1, Fighter f2, Card c2, RandomSource rng) {
         this.f1 = f1; this.c1 = c1;
         this.f2 = f2; this.c2 = c2;
@@ -99,9 +97,9 @@ public class Battle {
 
             eff = TypeChart.multiplier(move.getType(), def.getTypes());
             stab = atk.hasType(move.getType());
-            r.hit(who, move, damage, eff, stab, def.getCurrentHp(), ppLeft, healed, crit);
+            r.hit(who, move, damage, eff, stab, def.getCurrentHp(), ppLeft, healed, crit, atk.getCurrentHp());
         } else {
-            r.hit(who, move, 0, 1.0, false, def.getCurrentHp(), ppLeft, 0, false);
+            r.hit(who, move, 0, 1.0, false, def.getCurrentHp(), ppLeft, 0, false, atk.getCurrentHp());
         }
 
         if (!def.isFainted() && !move.getAilment().equals("none")) {
