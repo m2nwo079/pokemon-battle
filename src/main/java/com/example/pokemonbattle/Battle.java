@@ -1,18 +1,24 @@
 package com.example.pokemonbattle;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 public class Battle {
 
     private static final int MAX_TURNS = 30;
 
     private final Fighter f1, f2;
     private final Card c1, c2;
+    private final RandomSource rng;
     private int turn = 0;
 
+    /** 실제 게임용 생성자. 진짜 난수를 쓴다. */
     public Battle(Fighter f1, Card c1, Fighter f2, Card c2) {
+        this(f1, c1, f2, c2, new ThreadLocalRandomSource());
+    }
+
+    /** 테스트용 생성자. 정해진 난수를 주입해 전투를 결정론적으로 검증할 수 있다. */
+    public Battle(Fighter f1, Card c1, Fighter f2, Card c2, RandomSource rng) {
         this.f1 = f1; this.c1 = c1;
         this.f2 = f2; this.c2 = c2;
+        this.rng = rng;
     }
 
     public TurnResult playTurn(int move1Id, int move2Id) {
@@ -24,7 +30,7 @@ public class Battle {
 
         int spd1 = f1.getStatus().equals("paralysis") ? f1.getSpeed() / 4 : f1.getSpeed();
         int spd2 = f2.getStatus().equals("paralysis") ? f2.getSpeed() / 4 : f2.getSpeed();
-        boolean p1First = spd1 >= spd2;
+        boolean p1First = spd1 != spd2 ? spd1 > spd2 : rng.coinFlip();
 
         if (p1First) {
             attack("p1", f1, c1, m1, f2, r);
@@ -56,7 +62,7 @@ public class Battle {
     private void attack(String who, Fighter atk, Card card, Move move,
                         Fighter def, TurnResult r) {
         if (atk.getStatus().equals("paralysis")
-                && ThreadLocalRandom.current().nextInt(100) < 25) {
+                && rng.nextInt(100) < 25) {
             r.paralyzed(who);
             return;
         }
@@ -64,7 +70,7 @@ public class Battle {
         card.usePp(move.getId());
         int ppLeft = card.ppLeft(move.getId());
 
-        if (ThreadLocalRandom.current().nextInt(100) >= move.getAccuracy()) {
+        if (rng.nextInt(100) >= move.getAccuracy()) {
             r.miss(who, move, ppLeft);
             return;
         }
@@ -76,8 +82,8 @@ public class Battle {
         boolean stab = false;
 
         if (move.getPower() > 0) {
-            crit = ThreadLocalRandom.current().nextInt(16) == 0;
-            double roll = 0.85 + ThreadLocalRandom.current().nextDouble() * 0.15;
+            crit = rng.nextInt(16) == 0;
+            double roll = 0.85 + rng.nextDouble() * 0.15;
             damage = BattleEngine.damage(atk, def, move, roll, crit);
 
             if (atk.getStatus().equals("burn") && move.isPhysical()) {
@@ -100,7 +106,7 @@ public class Battle {
 
         if (!def.isFainted() && !move.getAilment().equals("none")) {
             int chance = move.getAilmentChance() > 0 ? move.getAilmentChance() : 100;
-            if (ThreadLocalRandom.current().nextInt(100) < chance) {
+            if (rng.nextInt(100) < chance) {
                 boolean applied = def.applyStatus(move.getAilment());
                 if (applied) {
                     String defWho = who.equals("p1") ? "p2" : "p1";
