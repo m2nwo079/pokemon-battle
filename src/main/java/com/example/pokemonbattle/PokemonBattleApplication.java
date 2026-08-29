@@ -1,5 +1,8 @@
 package com.example.pokemonbattle;
 
+import com.example.pokemonbattle.card.Card;
+import com.example.pokemonbattle.card.CardFactory;
+import com.example.pokemonbattle.persistence.PokemonSeeder;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

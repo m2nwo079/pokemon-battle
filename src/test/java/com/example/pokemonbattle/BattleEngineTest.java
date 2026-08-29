@@ -1,5 +1,8 @@
 package com.example.pokemonbattle;
 
+import com.example.pokemonbattle.card.Card;
+import com.example.pokemonbattle.card.Move;
+import com.example.pokemonbattle.game.*;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayDeque;
 import java.util.Deque;
