@@ -17,6 +17,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(handler, "/ws")
-                .setAllowedOriginPatterns("*");
+                .setAllowedOriginPatterns(
+                        "http://localhost:5173",
+                        "https://pokemon-battle-web.onrender.com");
     }
 }

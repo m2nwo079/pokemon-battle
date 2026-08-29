@@ -33,6 +33,9 @@ function reducer(state, msg) {
         case "room_created":
             return { ...state, phase: "waiting", roomCode: msg.roomCode, error: null };
 
+        case "room_joined":
+            return { ...state, roomCode: msg.roomCode, error: null };
+
         case "game_start":
             return { ...state, phase: "picking", hand: msg.myHand, round: msg.round, log: [],
                 winner: null, wins: [0, 0], opponentLeft: false,

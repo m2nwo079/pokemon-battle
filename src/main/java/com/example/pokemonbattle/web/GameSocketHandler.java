@@ -67,7 +67,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
     private void createRoom(WebSocketSession session) {
         GameRoom room = rooms.create();
-        Player me = new Player(session, UUID.randomUUID().toString());
+        Player me = new Player(session);
 
         synchronized (room) {
             room.players.add(me);
@@ -77,7 +77,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
         playerOf.put(session.getId(), me);
 
         send(session, Map.of("type", "room_created",
-                "roomCode", room.code, "playerToken", me.token));
+                "roomCode", room.code));
     }
 
     private void joinRoom(WebSocketSession session, String code) {
@@ -89,7 +89,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        Player me = new Player(session, UUID.randomUUID().toString());
+        Player me = new Player(session);
 
         synchronized (room) {
             if (room.finished) {
@@ -107,8 +107,8 @@ public class GameSocketHandler extends TextWebSocketHandler {
             roomOf.put(session.getId(), room);
             playerOf.put(session.getId(), me);
 
-            send(session, Map.of("type", "room_created",
-                    "roomCode", room.code, "playerToken", me.token));
+            send(session, Map.of("type", "room_joined",
+                    "roomCode", room.code));
 
             startGame(room);
         }
@@ -155,8 +155,6 @@ public class GameSocketHandler extends TextWebSocketHandler {
     }
 
     private void leave(WebSocketSession session) {
-        // 나가기는 소켓을 닫는 것과 같게 처리한다.
-        // 세션을 닫으면 afterConnectionClosed 가 방 정리와 상대 알림을 맡는다.
         try {
             session.close();
         } catch (Exception ignored) {}

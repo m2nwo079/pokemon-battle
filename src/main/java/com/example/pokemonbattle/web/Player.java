@@ -4,9 +4,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 public class Player {
     public final WebSocketSession session;
-    public final String token;          // 재접속용 신분증
-    public Player(WebSocketSession session, String token) {
+    public Player(WebSocketSession session) {
         this.session = session;
-        this.token = token;
     }
 }
