@@ -9,7 +9,7 @@ public class Card {
     private final int pokemonId;
     private final String name;
     private final List<Move> moves;
-    private final Map<Integer, Integer> pp;   // 기술별 남은 사용 횟수
+    private final Map<Integer, Integer> pp;
 
     public Card(int pokemonId, String name, List<Move> moves) {
         this.pokemonId = pokemonId;
@@ -17,7 +17,7 @@ public class Card {
         this.moves = moves;
         this.pp = new HashMap<>();
         for (Move m : moves) {
-            this.pp.put(m.getId(), m.getMaxPp());   // 만들어지는 순간 최대치로 채운다
+            this.pp.put(m.getId(), m.getMaxPp());
         }
     }
 
