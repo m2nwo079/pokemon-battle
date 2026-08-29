@@ -14,10 +14,29 @@ export default function App() {
   }, []);
 
   if (waking) {
-    return <div className="app center">서버를 깨우는 중입니다 (최대 1분)</div>;
+    return (
+        <div className="app waking">
+          <p>서버를 깨우는 중입니다 (최대 1분)</p>
+          <div className="waking-dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+    );
   }
 
   const inBattle = ["picking", "battle", "roundEnd"].includes(state.phase);
+
+  if (state.connectionLost) {
+    return (
+        <div className="conn-lost" role="alert">
+          <h2>연결이 끊겼습니다</h2>
+          <p>서버와의 연결이 종료됐습니다. 새로고침 후 다시 시도해 주세요.</p>
+          <button className="primary" onClick={() => window.location.reload()}>
+            새로고침
+          </button>
+        </div>
+    );
+  }
 
   return (
       <div className={inBattle ? "app app-full" : "app"}>
@@ -38,7 +57,7 @@ export default function App() {
                             : "lose";
                 const label = { win: "WIN", lose: "LOSE", draw: "DRAW" }[outcome];
                 return (
-                    <div className="round-result-overlay">
+                    <div className="round-result-overlay" role="status" aria-live="assertive">
                       <div className={`round-result ${outcome}`}>
                         {label}
                       </div>
