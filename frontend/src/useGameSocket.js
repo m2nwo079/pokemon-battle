@@ -26,6 +26,7 @@ const initial = {
     opponentWantsRematch: false,
     rematchPending: false,
     lastRoundWinner: null,
+    connectionLost: false,
 };
 
 function reducer(state, msg) {
@@ -119,6 +120,9 @@ function reducer(state, msg) {
         case "error":
             return { ...state, error: msg.message };
 
+        case "connection_lost":
+            return { ...state, connectionLost: true };
+
         case "local_card_played":
             return { ...state, cardLocked: true,
                 hand: state.hand.filter((_, i) => i !== msg.cardIndex) };
@@ -144,12 +148,22 @@ function reducer(state, msg) {
 export function useGameSocket() {
     const [state, dispatch] = useReducer(reducer, initial);
     const ws = useRef(null);
+    const closing = useRef(false);
+    const wasOpen = useRef(false);
 
     useEffect(() => {
         const socket = new WebSocket(wsUrl());
+        socket.onopen = () => { wasOpen.current = true; };
         socket.onmessage = (e) => dispatch(JSON.parse(e.data));
+        const flagLost = () => {
+            if (wasOpen.current && !closing.current) {
+                dispatch({ type: "connection_lost" });
+            }
+        };
+        socket.onclose = flagLost;
+        socket.onerror = flagLost;
         ws.current = socket;
-        return () => socket.close();
+        return () => { closing.current = true; socket.close(); };
     }, []);
 
     useEffect(() => {
@@ -183,6 +197,7 @@ export function useGameSocket() {
             dispatch({ type: "local_rematch" });
         },
         leave: () => {
+            closing.current = true;
             send({ type: "leave" });
             window.location.reload();
         },

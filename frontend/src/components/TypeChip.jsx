@@ -14,9 +14,18 @@ const NAMES = {
     steel: "강철", fairy: "페어리",
 };
 
+function textColor(hex) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.6 ? "#1a1a1a" : "#fff";
+}
+
 export default function TypeChip({ type }) {
+    const bg = COLORS[type] ?? "#888";
     return (
-        <span className="type-chip" style={{ background: COLORS[type] ?? "#888" }}>
+        <span className="type-chip" style={{ background: bg, color: textColor(bg) }}>
       {NAMES[type] ?? type}
     </span>
     );
