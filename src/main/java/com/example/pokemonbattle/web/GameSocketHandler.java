@@ -304,6 +304,10 @@ public class GameSocketHandler extends TextWebSocketHandler {
                             "message", "상대가 나갔습니다"));
                 }
             }
+            for (Player p : room.players) {
+                roomOf.remove(p.session.getId());
+                playerOf.remove(p.session.getId());
+            }
             room.finished = true;
         }
 

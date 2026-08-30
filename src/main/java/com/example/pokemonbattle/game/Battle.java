@@ -130,9 +130,15 @@ public class Battle {
         Move chosen = card.getMoves().stream()
                 .filter(m -> m.getId() == moveId)
                 .findFirst()
-                .orElse(card.getMoves().get(0));
+                .orElse(null);
 
-        return card.ppLeft(chosen.getId()) > 0 ? chosen : STRUGGLE;
+        // 선택한 기술에 PP가 남아 있으면 그대로 사용
+        if (chosen != null && card.ppLeft(chosen.getId()) > 0) return chosen;
+
+        return card.getMoves().stream()
+                .filter(m -> card.ppLeft(m.getId()) > 0)
+                .findFirst()
+                .orElse(STRUGGLE);
     }
 
     private static final Move STRUGGLE =

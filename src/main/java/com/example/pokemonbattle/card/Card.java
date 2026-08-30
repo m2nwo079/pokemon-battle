@@ -43,16 +43,16 @@ public class Card {
         out.put("name", name);
 
         List<Map<String, Object>> moveList = new ArrayList<>();
-        for (Move m : moves) {
-            Map<String, Object> entry = new HashMap<>();
-            entry.put("moveId", m.getId());
-            entry.put("name", m.getName());
-            entry.put("type", m.getType());
-            entry.put("power", m.getPower());
-            if (isMine) {
+        if (isMine) {
+            for (Move m : moves) {
+                Map<String, Object> entry = new HashMap<>();
+                entry.put("moveId", m.getId());
+                entry.put("name", m.getName());
+                entry.put("type", m.getType());
+                entry.put("power", m.getPower());
                 entry.put("currentPp", pp.get(m.getId()));
+                moveList.add(entry);
             }
-            moveList.add(entry);
         }
         out.put("moves", moveList);
         return out;
