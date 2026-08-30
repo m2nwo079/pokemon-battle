@@ -1,7 +1,7 @@
 import TypeChip from "./TypeChip";
 
 export default function MoveBar({ moves, onChoose, disabled }) {
-    const allOut = moves.length > 0 && moves.every((m) => m.currentPp === 0);
+    const allOut = moves.length === 0 || moves.every((m) => m.currentPp === 0);
 
     if (allOut) {
         return (
