@@ -4,6 +4,8 @@ import org.springframework.web.socket.WebSocketSession;
 
 public class Player {
     public final WebSocketSession session;
+    public String nickname = "익명";
+
     public Player(WebSocketSession session) {
         this.session = session;
     }

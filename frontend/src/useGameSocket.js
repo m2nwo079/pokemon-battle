@@ -13,6 +13,8 @@ const initial = {
     winner: null,
     opponentReady: false,
     error: null,
+    myName: "",
+    opponentName: "",
     me: "p1",
     myHp: null,
     opponentHp: null,
@@ -40,7 +42,9 @@ function reducer(state, msg) {
         case "game_start":
             return { ...state, phase: "picking", hand: msg.myHand, round: msg.round, log: [],
                 winner: null, wins: [0, 0], opponentLeft: false,
-                opponentWantsRematch: false, rematchPending: false, error: null };
+                myName: msg.myName ?? state.myName,
+                opponentName: msg.opponentName ?? state.opponentName,
+                opponentWantsRematch: false, rematchPending: false };
 
         case "opponent_played":
         case "opponent_chose":
@@ -180,8 +184,8 @@ export function useGameSocket() {
 
     return {
         state,
-        createRoom: () => send({ type: "create_room" }),
-        joinRoom: (roomCode) => send({ type: "join_room", roomCode }),
+        createRoom: (nickname) => send({ type: "create_room", nickname }),
+        joinRoom: (roomCode, nickname) => send({ type: "join_room", roomCode, nickname }),
         playCard: (cardIndex) => {
             if (state.cardLocked) return;
             send({ type: "play_card", cardIndex });

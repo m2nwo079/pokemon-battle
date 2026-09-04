@@ -2,6 +2,9 @@ import { useState } from "react";
 
 export default function Lobby({ state, createRoom, joinRoom }) {
     const [code, setCode] = useState("");
+    const [nick, setNick] = useState("");
+
+    const ready = nick.trim().length > 0;
 
     if (state.phase === "waiting") {
         return (
@@ -24,7 +27,21 @@ export default function Lobby({ state, createRoom, joinRoom }) {
             </p>
 
             <div className="lobby-card">
-                <button className="primary block" onClick={createRoom}>
+                <label className="field-label" htmlFor="nick">닉네임</label>
+                <input
+                    id="nick"
+                    className="field"
+                    value={nick}
+                    onChange={(e) => setNick(e.target.value)}
+                    placeholder="닉네임을 입력하세요"
+                    maxLength={12}
+                />
+
+                <button
+                    className="primary block"
+                    onClick={() => createRoom(nick)}
+                    disabled={!ready}
+                >
                     방 만들기
                 </button>
 
@@ -41,8 +58,8 @@ export default function Lobby({ state, createRoom, joinRoom }) {
                 />
                 <button
                     className="block"
-                    onClick={() => joinRoom(code)}
-                    disabled={code.length !== 4}
+                    onClick={() => joinRoom(code, nick)}
+                    disabled={!ready || code.length !== 4}
                 >
                     입장하기
                 </button>

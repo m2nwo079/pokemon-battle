@@ -38,8 +38,8 @@ public class GameSocketHandler extends TextWebSocketHandler {
             String type = String.valueOf(msg.get("type"));
 
             switch (type) {
-                case "create_room" -> createRoom(session);
-                case "join_room"   -> joinRoom(session, asString(msg.get("roomCode")));
+                case "create_room" -> createRoom(session, asNick(msg.get("nickname")));
+                case "join_room"   -> joinRoom(session, asString(msg.get("roomCode")), asNick(msg.get("nickname")));
                 case "play_card"   -> playCard(session, asInt(msg.get("cardIndex")));
                 case "choose_move" -> chooseMove(session, asInt(msg.get("moveId")));
                 case "rematch"     -> rematch(session);
@@ -64,10 +64,18 @@ public class GameSocketHandler extends TextWebSocketHandler {
         throw new IllegalArgumentException("숫자가 아닙니다: " + v);
     }
 
+    private static String asNick(Object v) {
+        if (v == null) return "익명";
+        String s = v.toString().trim();
+        if (s.isEmpty()) return "익명";
+        return s.length() > 12 ? s.substring(0, 12) : s;
+    }
 
-    private void createRoom(WebSocketSession session) {
+
+    private void createRoom(WebSocketSession session, String nickname) {
         GameRoom room = rooms.create();
         Player me = new Player(session);
+        me.nickname = nickname;
 
         synchronized (room) {
             room.players.add(me);
@@ -80,7 +88,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
                 "roomCode", room.code));
     }
 
-    private void joinRoom(WebSocketSession session, String code) {
+    private void joinRoom(WebSocketSession session, String code, String nickname) {
         GameRoom room = rooms.find(code);
 
         if (room == null) {
@@ -90,6 +98,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
         }
 
         Player me = new Player(session);
+        me.nickname = nickname;
 
         synchronized (room) {
             if (room.finished) {
@@ -124,7 +133,9 @@ public class GameSocketHandler extends TextWebSocketHandler {
             for (Card c : room.hands[i]) hand.add(c.toPayload(true));
 
             send(room.players.get(i).session,
-                    Map.of("type", "game_start", "round", 1, "myHand", hand));
+                    Map.of("type", "game_start", "round", 1, "myHand", hand,
+                            "myName", room.players.get(i).nickname,
+                            "opponentName", room.players.get(1 - i).nickname));
         }
     }
 

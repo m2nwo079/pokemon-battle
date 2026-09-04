@@ -7,6 +7,7 @@ export default function Battle({ state, playCard, chooseMove }) {
     const { phase, hand, myCard, opponentCard, round, wins,
         log, opponentReady, me, myHp, opponentHp,
         myTypes, opponentTypes, myStatus, opponentStatus,
+        myName, opponentName,
         cardLocked, moveLocked } = state;
 
     return (
@@ -22,12 +23,12 @@ export default function Battle({ state, playCard, chooseMove }) {
             <div className="hud">
                 <div className="hud-top">
                     <div className="round-chip">{round} / 6 라운드</div>
-                    {opponentCard && <HpBox card={opponentCard} hp={opponentHp} types={opponentTypes} status={opponentStatus} side="opp" />}
+                    {opponentCard && <HpBox card={opponentCard} hp={opponentHp} types={opponentTypes} status={opponentStatus} owner={opponentName} side="opp" />}
                     <div className="score-chip">{wins[0]} : {wins[1]}</div>
                 </div>
 
                 <div className="hud-mid">
-                    {myCard && <HpBox card={myCard} hp={myHp} types={myTypes} status={myStatus} side="me" />}
+                    {myCard && <HpBox card={myCard} hp={myHp} types={myTypes} status={myStatus} owner={myName} side="me" />}
                 </div>
 
                 <div className="hud-bottom">
@@ -64,7 +65,7 @@ export default function Battle({ state, playCard, chooseMove }) {
     );
 }
 
-function HpBox({ card, hp, types, status, side }) {
+function HpBox({ card, hp, types, status, owner, side }) {
     if (!hp) return null;
     const ratio = Math.max(0, hp.current / hp.max);
     const tone = ratio > 0.5 ? "ok" : ratio > 0.2 ? "warn" : "danger";
@@ -72,6 +73,7 @@ function HpBox({ card, hp, types, status, side }) {
     return (
         <div className={`hp-box ${side}`}>
             <div className="hp-name">
+                {owner && <span className="hp-owner">{owner} · </span>}
                 {card.name}
                 {(types ?? []).map((t) => <TypeChip key={t} type={t} />)}
                 {status && status !== "none" && <StatusChip status={status} />}
@@ -107,8 +109,7 @@ function describe(e, me) {
     if (e.type === "status_inflicted") return `${who} 포켓몬이 ${label[e.status] ?? e.status} 상태가 됐다`;
     if (e.type === "status_damage") return `${who} 포켓몬이 ${label[e.status] ?? e.status}(으)로 ${e.damage} 데미지`;
     if (e.type === "paralyzed") return `${who} 포켓몬은 몸이 저려서 움직일 수 없었다`;
-    if (e.type === "hit" && e.damage === 0)
-        return e.effectiveness === 0 ? `${who} ${e.move} — 효과가 없었다` : `${who} ${e.move}`;
+    if (e.type === "hit" && e.damage === 0) return `${who} ${e.move}`;
 
     const crit = e.crit ? " 급소에 맞았다!" : "";
 
