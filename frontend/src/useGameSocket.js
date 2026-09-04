@@ -40,7 +40,7 @@ function reducer(state, msg) {
         case "game_start":
             return { ...state, phase: "picking", hand: msg.myHand, round: msg.round, log: [],
                 winner: null, wins: [0, 0], opponentLeft: false,
-                opponentWantsRematch: false, rematchPending: false };
+                opponentWantsRematch: false, rematchPending: false, error: null };
 
         case "opponent_played":
         case "opponent_chose":
