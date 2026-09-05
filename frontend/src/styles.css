@@ -363,3 +363,37 @@ button:disabled {
         transition-duration: .01ms !important;
     }
 }
+
+/* ---------- 로비 레이아웃 (닉네임 분리 + 2단 액션) ---------- */
+
+.lobby-stack {
+    width: 100%; max-width: 460px;
+    display: flex; flex-direction: column; gap: 16px;
+}
+
+.lobby-card.identity { padding: 24px 28px; }
+
+.field.nick { letter-spacing: normal; text-align: left; }
+
+.lobby-actions {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    align-items: stretch;
+}
+
+.action-card {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 24px;
+    background: var(--panel);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--r-lg);
+    text-align: left;
+}
+
+.action-title { font-size: 15px; font-weight: 700; margin: 0; }
+.action-desc { font-size: 12px; color: var(--muted); margin: 0; line-height: 1.5; }
+
+.push { margin-top: auto; }
+
+@media (max-width: 640px) {
+    .lobby-actions { grid-template-columns: 1fr; }
+}
